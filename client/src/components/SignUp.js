@@ -1,8 +1,5 @@
 import {useState} from "react";
-import "./SignUp.css";
-
-
-// import axios from "axios";
+import Axios from "axios";
 
 function SignUp() {
     const [user, setUser] = useState(null);
@@ -17,11 +14,23 @@ function SignUp() {
     }
 
     // async function getUserData(){
-    //     const response = await axios.get(`http://${process.env["SERVER_PORT "]}`)
+    //     const response = await Axios.get(`http://${process.env.SERVER_PORT}`);
+    //     console.log(response);
     // }
 
     function sendUserData() {
-        console.log(`http://localhost:3005`);
+        console.log(`Attempting to signup`);
+        Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/signup`, user).then((res) => {
+            console.log("Server response: ", res.data);
+            if(res.data === `Error: data incomplete`){
+                window.alert("Please fill all fields before you signup");
+            }
+            if(res.data === `Error: userid already in use`){
+                window.alert("Please choose a different userID");
+            }
+        }).catch((error) => {
+            console.log("An error occurred:", error);
+        });
     }
 
     return (
