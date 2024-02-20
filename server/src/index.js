@@ -47,11 +47,11 @@ async function initializeDataBase() {
 // Initialize database
 let dbConnector;
 initializeDataBase().then((conn) => {
-        dbConnector = conn;
-    }).catch((error) => {
-        console.error('Database initialization failed:', error);
-        process.exit(1); // Exit the process with an error code
-    });
+    dbConnector = conn;
+}).catch((error) => {
+    console.error('Database initialization failed:', error);
+    process.exit(1); // Exit the process with an error code
+});
 
 
 /**
@@ -60,7 +60,10 @@ initializeDataBase().then((conn) => {
 app.post("/signup", async (req, res) => {
     try {
         // Destructure data from request
-        const {firstName, lastName, username, password} = req.body;
+        const firstName = req.body.firstName;
+        const lastName = req.body.lastName;
+        const username = req.body.username;
+        const password = req.body.password;
 
         // Check if any fields were blank
         if (!firstName || !lastName || !username || !password) {
@@ -70,14 +73,14 @@ app.post("/signup", async (req, res) => {
         // Check if username already exists
         let similarUserName = await dbConnector.execute(`SELECT username FROM ${process.env.MYSQL_TABLE} WHERE username = '${username}';`);
         console.log(similarUserName);
-        if(similarUserName[0].length>0){
+        if (similarUserName[0].length > 0) {
             throw new Error("username taken");
         }
 
         // Store user data, create userID, hashPassword
         const userID = uuidv4();
         // const hashedPassword = await bcrypt.hash(password, 10); // TODO: understand this
-        const hashedPassword = password;
+        const hashedPassword = password; //TODO: Implement password hashing
         console.log(`hashed code:`, hashedPassword);
         const response = {userID, firstName, lastName, username};
         res.json({...response, res: "SignUpComponent successful"});
@@ -100,13 +103,41 @@ app.post("/signup", async (req, res) => {
 /**
  * Login user
  */
-app.post("/login", async(req, res)=>{
-    try{
+app.post("/login", async (req, res) => {
+    try {
+        const username = req.body.username;
+        const password = req.body.password;
+        const hashedPassword = password; //TODO: Implement password hashing
 
-    }
-    catch(error){
-        console.error(`A user tried to signup and caused an error: ${error}`);
-        res.json({res: `${error}`});
+        if (!username || !hashedPassword) {
+            throw new Error("data incomplete");
+        }
+
+        let actualPassword = await dbConnector.execute(`SELECT hashedPassword FROM ${process.env.MYSQL_TABLE} WHERE username = '${username}';`);
+
+        if(actualPassword[0].length > 0){
+            actualPassword = actualPassword[0][0].hashedPassword; // Convert var from list to actual element
+        }else{
+            throw new Error("incorrect data");
+        }
+
+        if (hashedPassword !== actualPassword) {
+            throw new Error("incorrect data");
+        }
+
+        // If the user reached here, he is the correct user with correct credentials.
+
+        let firstName = await dbConnector.execute(`SELECT firstName FROM ${process.env.MYSQL_TABLE} WHERE username = '${username}';`);
+        let lastName = await dbConnector.execute(`SELECT lastName FROM ${process.env.MYSQL_TABLE} WHERE username = '${username}';`);
+        lastName = lastName[0][0].lastName;
+        firstName = firstName[0][0].firstName;
+        const resp = "login successful";
+        console.log("A user logged in!", req.body);
+
+        res.json({username, hashedPassword, firstName, lastName, res: resp});
+    } catch (error) {
+        console.error(`A user tried to login and caused an error: ${error}`);
+        res.json({...req.body, res: `${error}`});
     }
 });
 
