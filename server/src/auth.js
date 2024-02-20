@@ -1,12 +1,12 @@
 import {v4 as uuidv4} from "uuid";
 import bcrypt from "bcrypt";
-import mysql from "mysql2/promise"; //TODO: fix all SQL injections
+//TODO: fix all SQL injections
 
 /**
  * Sign Up a user. (generate user id, user token, and perform other necessary checks)
  * @param req Client Request
  * @param res Client Response
- * @param dbConnector dataBase where data is being accessed
+ * @param dbConnector dataBase where data is being accessed / modified
  * @response JSON file with: request body, server response message (success, or error message)
  */
 export async function signUp(req, res, dbConnector) {
@@ -36,7 +36,7 @@ export async function signUp(req, res, dbConnector) {
         const token = uuidv4();
         console.log(`hashed code:`, hashedPassword);
         const response = {userID, firstName, lastName, username};
-        res.json({...response, res: "SignUpComponent successful"});
+        res.json({...response, res: "success"});
         delete req.body.password;
         req.body = {...req.body, userID: userID, password: password, token: token};
 
@@ -59,7 +59,7 @@ export async function signUp(req, res, dbConnector) {
  * Login a user. (search user token, and perform necessary checks for login data)
  * @param req Client Request
  * @param res Client Response
- * @param dbConnector dataBase where data is being accessed
+ * @param dbConnector dataBase where data is being accessed / modified
  * @response JSON file with: request body, additional userData if login successful, userToken, server response message (success, or error message)
  */
 export async function login(req, res, dbConnector) {
@@ -99,9 +99,8 @@ export async function login(req, res, dbConnector) {
         token = token[0][0].token;
 
         // Login successful, give user login data
-        const resp = "login successful";
         console.log("A user logged in!", req.body);
-        res.json({username, firstName, lastName, res: resp, token: token});
+        res.json({username, firstName, lastName, res: "success", token: token});
     }
         // Error catching, and send error data to client
     catch (error) {

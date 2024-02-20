@@ -1,4 +1,3 @@
-import {v4 as uuidv4} from "uuid";
 import dotenv from "dotenv";
 import mysql from "mysql2/promise"; //TODO: fix all SQL injections
 dotenv.config();
