@@ -12,7 +12,7 @@ const cookie = new Cookies();
 export function login(userData) {
     console.log(`Attempting to login`);
     Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/login`, userData).then((res)=>{
-        console.log("Data received by server & response: ", res.data);
+        console.log("Server response: ", res.data.res);
         if (res.data.res === `Error: data incomplete`) {
             window.alert("Please fill all fields before you signup");
             return false;
@@ -24,7 +24,6 @@ export function login(userData) {
         const cookieExpiryDate = new Date();
         cookieExpiryDate.setDate(cookieExpiryDate.getDate() + 30);
         cookie.set("username", res.data.username, { expires: cookieExpiryDate });
-        cookie.set("userID", res.data.username, { expires: cookieExpiryDate });
         cookie.set("firstName", res.data.firstName, { expires: cookieExpiryDate });
         cookie.set("lastName", res.data.lastName, { expires: cookieExpiryDate });
         cookie.set("token", res.data.token, { expires: cookieExpiryDate });
@@ -46,7 +45,7 @@ export function login(userData) {
 export function signUp(userData) {
     console.log(`Attempting to signup`);
     Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/signup`, userData).then((res) => {
-        console.log("Data received by server & response: ", res.data);
+        console.log("Server response:", res.data.res);
         if (res.data.res === `Error: data incomplete`) {
             window.alert("Please fill all fields before you signup");
             return false;

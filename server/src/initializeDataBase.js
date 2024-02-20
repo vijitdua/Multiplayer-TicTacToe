@@ -8,6 +8,8 @@ dotenv.config();
  */
 export async function initializeDataBase() {
 
+    console.log("Connecting to database and initializing if needed");
+
     // Connect to the database
     let dbConnector = await mysql.createConnection({
         host: `${process.env.MYSQL_HOST}`,
@@ -24,6 +26,7 @@ export async function initializeDataBase() {
     await createUserDataTableIfNotExists(dbConnector);
     await createGameDataTableIfNotExists(dbConnector);
 
+    console.log("Database connection successful");
     return dbConnector;
 }
 
@@ -41,6 +44,9 @@ async function createUserDataTableIfNotExists(dbConnector){
                     lastName varchar(255) NOT NULL,
                     hashedPassword varchar(255) NOT NULL,
                     token varchar(255) NOT NULL,
+                    UNIQUE(username),
+                    UNIQUE(userID),
+                    UNIQUE(token),
                     PRIMARY KEY (username)
                     );`);
 }
@@ -55,6 +61,7 @@ async function createGameDataTableIfNotExists(dbConnector){
                     roomID varchar(255) NOT NULL, 
                     hostUserName varchar(255) NOT NULL,
                     player2UserName varchar(255),
+                    UNIQUE(roomID),
                     PRIMARY KEY (roomID)
                     );`);
 }
