@@ -1,12 +1,11 @@
-import './App.css';
-import SignUpComponent from "./components/SignUpComponent";
-import LoginComponent from "./components/LoginComponent";
+import SignUp from "./components/SignUp";
+import Login from "./components/Login";
 import JoinRoom from "./components/JoinRoom";
 
 function App() {
     return (<>
-        <SignUpComponent/>
-        <LoginComponent/>
+        <SignUp/>
+        <Login/>
         <JoinRoom />
     </>);
 }

@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {signUp, login} from "../logic/auth";
 
-function SignUpComponent() {
+function SignUp() {
     const [user, setUser] = useState(null);
 
     function setUserData(dataType, data) {
@@ -31,4 +31,4 @@ function SignUpComponent() {
     );
 }
 
-export default SignUpComponent;
+export default SignUp;
