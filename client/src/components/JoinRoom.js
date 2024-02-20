@@ -1,14 +1,18 @@
 import {useState} from 'react';
-import {} from '../logic/manageRoom';
+import {joinRoom} from '../logic/manageRoom';
 
 function JoinRoom() {
-    const [roomName, setRoomName] = useState(null);
+    const [hostUserName, setHostUserName] = useState(null);
+
+    function joinGame(){
+        joinRoom(hostUserName);
+    }
 
     return (<div className='JoinGameRoom'>
         <form>
-            <input type="text" placeholder="room-name"
-                   onChange={(event) => setRoomName(event.target.value)}/>
-            <button type="button" onClick={/* change this */}>Join Game</button>
+            <input type="text" placeholder="room host username"
+                   onChange={(event) => setHostUserName(event.target.value)}/>
+            <button type="button" onClick={joinGame}>Join Game</button>
         </form>
     </div>);
 }
