@@ -80,7 +80,7 @@ app.post("/signup", async (req, res) => {
         const hashedPassword = password;
         console.log(`hashed code:`, hashedPassword);
         const response = {userID, firstName, lastName, username};
-        res.json({...response, msg: "SignUp successful"});
+        res.json({...response, res: "SignUpComponent successful"});
         delete req.body.password;
         req.body = {...req.body, userID: userID, hashedPassword: hashedPassword};
 
@@ -93,9 +93,23 @@ app.post("/signup", async (req, res) => {
         // Error catching
     catch (error) {
         console.error(`A user tried to signup and caused and caused an error: ${error}\nData Received: ${JSON.stringify(req.body)}\n`);
-        res.send(`${error}`);
+        res.json({...req.body, res: `${error}`});
     }
 });
+
+/**
+ * Login user
+ */
+app.post("/login", async(req, res)=>{
+    try{
+
+    }
+    catch(error){
+        console.error(`A user tried to signup and caused an error: ${error}`);
+        res.json({res: `${error}`});
+    }
+});
+
 
 /**
  * Activate the server

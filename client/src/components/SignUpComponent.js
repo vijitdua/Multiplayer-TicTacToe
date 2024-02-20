@@ -2,7 +2,7 @@ import {useState} from "react";
 import Axios from "axios";
 import Cookies from "universal-cookie";
 
-function SignUp() {
+function SignUpComponent() {
     const [user, setUser] = useState(null);
     const cookie = new Cookies();
 
@@ -16,10 +16,16 @@ function SignUp() {
     }
 
     /**
-     * Attempts to login using given data
+     * Attempts to loginComponent using given data
      */
     function login() {
-        Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/login`, user);
+        Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/login`, user).then((res)=>{
+            cookie.set("username", res.data.username);
+            cookie.set("userID", res.data.username);
+            cookie.set("firstName", res.data.firstName);
+            cookie.set("lastName", res.data.lastName);
+            cookie.set("hashedPassword", res.data.hashedPassword);
+        });
     }
 
     /**
@@ -28,14 +34,12 @@ function SignUp() {
     function sendUserData() {
         console.log(`Attempting to signup`);
         Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/signup`, user).then((res) => {
-            console.log("Server Response: ", res.data.msg);
-            delete res.data.msg;
-            console.log("Server received following Data:", res.data);
-            if (res.data === `Error: data incomplete`) {
+            console.log("Data recieved by server & response: ", res.data);
+            if (res.data.res === `Error: data incomplete`) {
                 window.alert("Please fill all fields before you signup");
                 return false;
             }
-            if (res.data === `Error: username taken`) {
+            if (res.data.res === `Error: username taken`) {
                 window.alert("Please choose a different username");
                 return false;
             }
@@ -73,4 +77,4 @@ function SignUp() {
     );
 }
 
-export default SignUp;
+export default SignUpComponent;
