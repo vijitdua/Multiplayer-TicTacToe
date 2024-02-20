@@ -4,147 +4,34 @@ import dotenv from "dotenv";
 import {v4 as uuidv4} from "uuid";
 import bcrypt from "bcrypt";
 import mysql from "mysql2/promise"; //TODO: fix all SQL injections
+import {initializeDataBase} from "./initializeDataBase.js";
+import {signUp, login} from "./auth.js";
 
 dotenv.config();
 
+// Express config
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
-// Initializes the database and returns the connector object
-async function initializeDataBase() {
-
-    //mySQL connector object
-    let dbConnector = await mysql.createConnection({
-        host: `${process.env.MYSQL_HOST}`,
-        user: `${process.env.MYSQL_USERNAME}`,
-        password: `${process.env.MYSQL_PASSWORD}`
-    });
-
-    // Connecting to database
-    await dbConnector.connect();
-
-    // Making database if it doesn't exist
-    await dbConnector.query(`CREATE DATABASE IF NOT EXISTS ${process.env.MYSQL_DB};`);
-
-    // Switch to correct database
-    await dbConnector.query(`USE ${process.env.MYSQL_DB};`);
-
-    //Creating table if it doesn't exist
-    await dbConnector.query(`CREATE TABLE IF NOT EXISTS ${process.env.MYSQL_TABLE}(
-                    userID varchar(255) NOT NULL, 
-                    username varchar(255) NOT NULL,
-                    firstName varchar(255) NOT NULL,
-                    lastName varchar(255) NOT NULL,
-                    hashedPassword varchar(255) NOT NULL,
-                    PRIMARY KEY (username)
-                    );`);
-
-    return dbConnector;
-}
-
-// Initialize database
+// Initialize database, exit if failed
 let dbConnector;
 initializeDataBase().then((conn) => {
     dbConnector = conn;
 }).catch((error) => {
     console.error('Database initialization failed:', error);
-    process.exit(1); // Exit the process with an error code
+    process.exit(1);
 });
 
 
-/**
- * Sign Up user
- */
-app.post("/signup", async (req, res) => {
-    try {
-        // Destructure data from request
-        const firstName = req.body.firstName;
-        const lastName = req.body.lastName;
-        const username = req.body.username;
-        const password = req.body.password;
+// SignUp user
+app.post("/signup", async (req, res) => signUp(req, res, dbConnector));
 
-        // Check if any fields were blank
-        if (!firstName || !lastName || !username || !password) {
-            throw new Error("data incomplete");
-        }
-
-        // Check if username already exists
-        let similarUserName = await dbConnector.execute(`SELECT username FROM ${process.env.MYSQL_TABLE} WHERE username = '${username}';`);
-        console.log(similarUserName);
-        if (similarUserName[0].length > 0) {
-            throw new Error("username taken");
-        }
-
-        // Store user data, create userID, hashPassword
-        const userID = uuidv4();
-        // const hashedPassword = await bcrypt.hash(password, 10); // TODO: understand this
-        const hashedPassword = password; //TODO: Implement password hashing
-        console.log(`hashed code:`, hashedPassword);
-        const response = {userID, firstName, lastName, username};
-        res.json({...response, res: "SignUpComponent successful"});
-        delete req.body.password;
-        req.body = {...req.body, userID: userID, hashedPassword: hashedPassword};
-
-        await dbConnector.query(`INSERT INTO ${process.env.MYSQL_TABLE}(userID, username, firstName, lastName, hashedPassword)
-                            VALUES ('${userID}', '${username}', '${firstName}', '${lastName}', '${hashedPassword}'
-                            );`)
-
-        console.log("A new user signed up!", req.body);
-    }
-        // Error catching
-    catch (error) {
-        console.error(`A user tried to signup and caused and caused an error: ${error}\nData Received: ${JSON.stringify(req.body)}\n`);
-        res.json({...req.body, res: `${error}`});
-    }
-});
-
-/**
- * Login user
- */
-app.post("/login", async (req, res) => {
-    try {
-        const username = req.body.username;
-        const password = req.body.password;
-        const hashedPassword = password; //TODO: Implement password hashing
-
-        if (!username || !hashedPassword) {
-            throw new Error("data incomplete");
-        }
-
-        let actualPassword = await dbConnector.execute(`SELECT hashedPassword FROM ${process.env.MYSQL_TABLE} WHERE username = '${username}';`);
-
-        if(actualPassword[0].length > 0){
-            actualPassword = actualPassword[0][0].hashedPassword; // Convert var from list to actual element
-        }else{
-            throw new Error("incorrect data");
-        }
-
-        if (hashedPassword !== actualPassword) {
-            throw new Error("incorrect data");
-        }
-
-        // If the user reached here, he is the correct user with correct credentials.
-
-        let firstName = await dbConnector.execute(`SELECT firstName FROM ${process.env.MYSQL_TABLE} WHERE username = '${username}';`);
-        let lastName = await dbConnector.execute(`SELECT lastName FROM ${process.env.MYSQL_TABLE} WHERE username = '${username}';`);
-        lastName = lastName[0][0].lastName;
-        firstName = firstName[0][0].firstName;
-        const resp = "login successful";
-        console.log("A user logged in!", req.body);
-
-        res.json({username, hashedPassword, firstName, lastName, res: resp});
-    } catch (error) {
-        console.error(`A user tried to login and caused an error: ${error}`);
-        res.json({...req.body, res: `${error}`});
-    }
-});
+//Login user
+app.post("/login", async (req, res) => login(req, res, dbConnector));
 
 
-/**
- * Activate the server
- */
+// Activate the server
 app.listen(process.env.SERVER_PORT, () => {
     console.log(`Server is running on port ${process.env.SERVER_PORT}`);
 });

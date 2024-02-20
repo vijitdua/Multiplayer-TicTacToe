@@ -5,7 +5,7 @@ const cookie = new Cookies();
 
 /**
  * login: Sends and receives data from backend to login user
- * @param userData : sign up data Format: {username, password}
+ * @param userData sign up data Format: {username, password}
  * @returns true : If successful
  * @returns false : If signup failed. Also creates popup window with error.
  */
@@ -21,11 +21,13 @@ export function login(userData) {
             window.alert("Please check if your username and/or password are correct");
             return false;
         }
-        cookie.set("username", res.data.username);
-        cookie.set("userID", res.data.username);
-        cookie.set("firstName", res.data.firstName);
-        cookie.set("lastName", res.data.lastName);
-        cookie.set("hashedPassword", res.data.hashedPassword);
+        const cookieExpiryDate = new Date();
+        cookieExpiryDate.setDate(cookieExpiryDate.getDate() + 30);
+        cookie.set("username", res.data.username, { expires: cookieExpiryDate });
+        cookie.set("userID", res.data.username, { expires: cookieExpiryDate });
+        cookie.set("firstName", res.data.firstName, { expires: cookieExpiryDate });
+        cookie.set("lastName", res.data.lastName, { expires: cookieExpiryDate });
+        cookie.set("token", res.data.token, { expires: cookieExpiryDate });
         console.log("login successful");
         return true;
     }).catch((error) => {
@@ -37,7 +39,7 @@ export function login(userData) {
 
 /**
  * signUp: Sends and receives data from backend to signUp user
- * @param userData : sign up data Format: {username, firstName, lastName, password}
+ * @param userData sign up data Format: {username, firstName, lastName, password}
  * @returns true : If successful
  * @returns false : If signup failed. Also creates popup window with error.
  */
