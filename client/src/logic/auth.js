@@ -9,9 +9,10 @@ const cookie = new Cookies();
  * @returns true : If successful
  * @returns false : If signup failed. Also creates popup window with error.
  */
-export function login(userData) {
+export async function login(userData) {
     console.log(`Attempting to login`);
-    Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/login`, userData).then((res)=>{
+    try{
+        let res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/login`, userData);
         console.log("Server response: ", res.data.res);
         if (res.data.res === `Error: data incomplete`) {
             window.alert("Please fill all fields before you signup");
@@ -21,19 +22,24 @@ export function login(userData) {
             window.alert("Please check if your username and/or password are correct");
             return false;
         }
+
+        // Set relevant cookie expiry date
         const cookieExpiryDate = new Date();
         cookieExpiryDate.setDate(cookieExpiryDate.getDate() + 30);
-        cookie.set("username", res.data.username, { expires: cookieExpiryDate });
-        cookie.set("firstName", res.data.firstName, { expires: cookieExpiryDate });
-        cookie.set("lastName", res.data.lastName, { expires: cookieExpiryDate });
-        cookie.set("token", res.data.token, { expires: cookieExpiryDate });
+        const cookieOptions = (userData.remember) ? {expires: cookieExpiryDate} : {};
+
+        // Create cookies
+        cookie.set("username", res.data.username, cookieOptions);
+        cookie.set("firstName", res.data.firstName, cookieOptions);
+        cookie.set("lastName", res.data.lastName, cookieOptions);
+        cookie.set("token", res.data.token, cookieOptions);
         console.log("login successful");
         return true;
-    }).catch((error) => {
+
+    }catch(error){
         console.log("An error occurred:", error);
         return false;
-    });
-    return false;
+    }
 }
 
 /**
@@ -42,9 +48,10 @@ export function login(userData) {
  * @returns true : If successful
  * @returns false : If signup failed. Also creates popup window with error.
  */
-export function signUp(userData) {
+export async function signUp(userData) {
     console.log(`Attempting to signup`);
-    Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/signup`, userData).then((res) => {
+    try {
+        const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/signup`, userData);
         console.log("Server response:", res.data.res);
         if (res.data.res === `Error: data incomplete`) {
             window.alert("Please fill all fields before you signup");
@@ -55,10 +62,10 @@ export function signUp(userData) {
             return false;
         }
         return true;
-    }).catch((error) => {
+    } catch (error) {
         console.log("An error occurred:", error);
+        window.alert("An error occurred during signup.");
         return false;
-    });
-    return false;
+    }
 }
 

@@ -1,13 +1,23 @@
-import SignUp from "./components/SignUp";
-import Login from "./components/Login";
-import JoinRoom from "./components/JoinRoom";
+import ReactDOM from "react-dom/client";
+import Authentication from "./pages/Authentication-page.js";
+import Game from "./pages/Game-page";
+import RoomManagement from "./pages/RoomManagement-page";
+import NoPage from "./pages/NoPage";
+import {BrowserRouter, Routes, Route} from "react-router-dom";
 
 function App() {
-    return (<>
-        <SignUp/>
-        <Login/>
-        <JoinRoom />
-    </>);
+    return (<BrowserRouter>
+        <Routes>
+            <Route path="/">
+                {/*<Route index element={<Home />} />*/}
+                <Route path="authenticate" element={<Authentication />} />
+                <Route path="login" element={<Authentication />} />
+                <Route path="signup" element={<Authentication />} />
+                <Route path="Game" element={<Game />} />
+                <Route path="*" element={<NoPage />} />
+            </Route>
+        </Routes>
+    </BrowserRouter>);
 }
 
 export default App;
