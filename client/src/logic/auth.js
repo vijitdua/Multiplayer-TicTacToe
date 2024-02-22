@@ -4,7 +4,7 @@ import Cookies from "universal-cookie";
 const cookie = new Cookies();
 
 /**
- * login: Sends and receives data from backend to login user
+ * logic: Sends and receives data from backend to logic user
  * @param userData sign up data Format: {username, password}
  * @returns true : If successful
  * @returns false : If signup failed. Also creates popup window with error.
@@ -33,7 +33,7 @@ export async function login(userData) {
         cookie.set("firstName", res.data.firstName, cookieOptions);
         cookie.set("lastName", res.data.lastName, cookieOptions);
         cookie.set("token", res.data.token, cookieOptions);
-        console.log("login successful");
+        console.log("logic successful");
         return true;
 
     }catch(error){
