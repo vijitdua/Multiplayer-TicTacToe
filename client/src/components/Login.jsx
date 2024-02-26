@@ -1,16 +1,22 @@
 import {useState} from "react";
-import {login} from "../logic/auth";
+import {login} from "../api/auth";
+import ErrorMessage from "./ErrorMessage.jsx";
 import '../css/authentication.css';
 
 function Login() {
     const [user, setUser] = useState(null);
+    const [error, setErr] = useState(null);
 
     function setUserData(dataType, data) {
         setUser({...user, [dataType]: data});
     }
 
     async function loginButton() {
-        await login(user);
+        let err = await login(user);
+        if(err !== true){
+            setErr(err);
+        }
+
     }
 
 
@@ -28,6 +34,7 @@ function Login() {
                     <input type="checkbox" onChange={(e) => e.target.checked ? setUserData("remember", true) : setUserData("remember", false)}/> <label> Remember Me</label><br/>
                 </div>
                 <button type="button" onClick={loginButton}>Log In</button>
+                {error && <ErrorMessage message={error} />}
             </form>
         </div>
     );

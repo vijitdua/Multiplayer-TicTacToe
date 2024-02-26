@@ -1,9 +1,9 @@
-import ReactDOM from "react-dom/client";
-import Authentication from "./pages/Authentication-page.js";
+import Authentication from "./pages/Authentication-page.jsx";
 import Game from "./pages/Game-page";
 import RoomManagement from "./pages/RoomManagement-page";
 import NoPage from "./pages/NoPage";
 import {BrowserRouter, Routes, Route} from "react-router-dom";
+import CreateRoom from "./components/CreateRoom";
 
 function App() {
     return (<BrowserRouter>
@@ -14,6 +14,7 @@ function App() {
                 <Route path="login" element={<Authentication />} />
                 <Route path="signup" element={<Authentication />} />
                 <Route path="Game" element={<Game />} />
+                <Route path="create" element={<CreateRoom />}/>
                 <Route path="*" element={<NoPage />} />
             </Route>
         </Routes>

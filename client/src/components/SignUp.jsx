@@ -1,19 +1,24 @@
 import {useState} from "react";
-import {signUp, login} from "../logic/auth";
+import {signUp, login} from "../api/auth";
 import '../css/authentication.css';
+import ErrorMessage from "./ErrorMessage";
 
 function SignUp() {
     const [user, setUser] = useState(null);
+    const [error, setErr] = useState(null);
 
     function setUserData(dataType, data) {
         setUser({...user, [dataType]: data});
     }
 
     async function signUpButton() {
-        const signupSuccess = await signUp(user);
-        if(signupSuccess){
+        const signUpSuccessOrErr = await signUp(user);
+        if(signUpSuccessOrErr === true){
             setUserData("remember", true);
             await login(user);
+        }
+        else{
+            setErr(signUpSuccessOrErr);
         }
     }
 
@@ -34,6 +39,7 @@ function SignUp() {
                 <input type="password" placeholder="Enter password"
                        onChange={(event) => setUserData("password", event.target.value)}/> <br/>
                 <button type="button" onClick={signUpButton}>Sign Up</button>
+                {error && <ErrorMessage message={error} />}
             </form>
         </div>
     );

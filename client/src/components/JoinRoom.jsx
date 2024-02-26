@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {joinRoom} from '../logic/manageRoom';
+import {joinRoom} from '../api/manageRoom';
 
 function JoinRoom() {
     const [hostUserName, setHostUserName] = useState(null);

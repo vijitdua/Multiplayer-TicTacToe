@@ -3,14 +3,33 @@ import Cookies from "universal-cookie";
 
 const cookie = new Cookies();
 
-export function createRoom(){
+export async function createRoom(roomData){
+    console.log("Attempting to create a room");
+    const req = {...roomData, cmd: `create`};
+    try{
+        let res = await Axios.get(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/gameEvents`, req);
+        console.log(`Server response: `, res.data.res);
+        if (res.data.res === `Error: data incomplete`) {
+            window.alert("Please fill all fields before you signup");
+            return false;
+        }
+        if (res.data.res === `Error: invalid token`) {
+            window.alert("Please login again, your login data seems incorrect");
+            //TODO: Clear all user login cookies?
+            return false;
+        }
+
+    }
+    catch(e){
+
+    }
 
 }
 
 export function joinRoom(){
     console.log(`Attempting to join a game`);
     const userToken = cookie.get("token");
-    Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/join-room`, {token: userToken}).then((res)=>{
+    Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/gameEvents`, {cmd:"create", token: userToken}).then((res)=>{
         console.log("Data received by server & response: ", res.data);
         if (res.data.res === `Error: invalid token`) {
             window.alert("Login data is incorrect, please sign-out and login again");

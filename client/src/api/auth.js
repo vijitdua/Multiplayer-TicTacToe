@@ -15,12 +15,10 @@ export async function login(userData) {
         let res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/login`, userData);
         console.log("Server response: ", res.data.res);
         if (res.data.res === `Error: data incomplete`) {
-            window.alert("Please fill all fields before you signup");
-            return false;
+            return ("Please fill all fields before you signup");
         }
         if (res.data.res === `Error: incorrect data`) {
-            window.alert("Please check if your username and/or password are correct");
-            return false;
+            return("Please check if your username and/or password are correct");
         }
 
         // Set relevant cookie expiry date
@@ -38,7 +36,7 @@ export async function login(userData) {
 
     }catch(error){
         console.log("An error occurred:", error);
-        return false;
+        return error;
     }
 }
 
@@ -54,18 +52,15 @@ export async function signUp(userData) {
         const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/signup`, userData);
         console.log("Server response:", res.data.res);
         if (res.data.res === `Error: data incomplete`) {
-            window.alert("Please fill all fields before you signup");
-            return false;
+            return("Please fill all fields before you signup");
         }
         if (res.data.res === `Error: username taken`) {
-            window.alert("Please choose a different username");
-            return false;
+            return("Please choose a different username");
         }
         return true;
     } catch (error) {
         console.log("An error occurred:", error);
-        window.alert("An error occurred during signup.");
-        return false;
+        return("An error occurred during signup.");
     }
 }
 
