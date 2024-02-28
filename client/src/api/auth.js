@@ -55,12 +55,12 @@ export async function signUp(userData) {
             return("Please fill all fields before you signup");
         }
         if (res.data.res === `Error: username taken`) {
-            return("Please choose a different username");
+            return("Sorry that username already exists");
         }
         return true;
     } catch (error) {
         console.log("An error occurred:", error);
-        return("An error occurred during signup.");
+        return("An unknown error occurred");
     }
 }
 
