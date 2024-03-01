@@ -1,7 +1,19 @@
 import {useState} from "react";
 import {login} from "../api/auth";
 import ErrorMessage from "./ErrorMessage.jsx";
-import {CssBaseline} from "@mui/material";
+import {
+    Avatar,
+    Box,
+    Button,
+    Checkbox,
+    Container,
+    FormControlLabel,
+    Grid,
+    Link,
+    TextField,
+    Typography
+} from "@mui/material";
+import LockIcon from '@mui/icons-material/Lock';
 
 function Login() {
     const [user, setUser] = useState(null);
@@ -14,7 +26,7 @@ function Login() {
 
     async function loginButton() {
         let err = await login(user);
-        if(err !== true){
+        if (err !== true) {
             setErr(err);
             setErrID(prevId => prevId + 1); // Increment errorId to ensure a new key for each error
         }
@@ -22,24 +34,83 @@ function Login() {
 
 
     return (
-            <div className="authDiv">
-                <form className="authForm">
-                    <h1>Log In</h1>
-                    <label> Username </label> <br/>
-                    <input type="text" placeholder="Enter username"
-                           onChange={(event) => setUserData("username", event.target.value)}/> <br/>
-                    <label> Password </label> <br/>
-                    <input type="password" placeholder="Enter password"
-                           onChange={(event) => setUserData("password", event.target.value)}/> <br/>
-                    <div className="checkBox">
-                        <input type="checkbox"
-                               onChange={(e) => e.target.checked ? setUserData("remember", true) : setUserData("remember", false)}/>
-                        <label> Remember Me</label><br/>
-                    </div>
-                    <button type="button" onClick={loginButton}>Log In</button>
-                    {error && <ErrorMessage message={error} errID={errID}/>}
-                </form>
-            </div>
+        <Container maxWidth='xs'>
+            <Box
+                sx={{
+                    marginTop: 8,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+
+                    '& > *': {
+                        margin: '15px', // Apply margin to each child
+                    },
+                }}
+            >
+                <Box sx={{
+                    display: 'flex',
+                    '& > *': {
+                        margin: '10px',
+                    },
+                }}>
+                    <Avatar>
+                        <LockIcon/>
+                    </Avatar>
+                    <Typography variant="h4" component="h1">Log In</Typography>
+                </Box>
+
+                <TextField
+                    label="Username"
+                    required
+                    fullWidth
+                    variant="outlined"
+                    margin='normal'
+                    autoFocus
+                    autoComplete="username"
+                    onChange={(event) => setUserData("username", event.target.value)}
+                />
+
+                <TextField
+                    label="Password"
+                    required
+                    fullWidth
+                    variant="outlined"
+                    type='password'
+                    margin='normal'
+                    autoFocus
+                    autoComplete="password"
+                    onChange={(event) => setUserData("password", event.target.value)}
+                />
+
+                <Box sx={{display: 'flex', justifyContent: 'flex-start', width: '100%'}}>
+
+                    <FormControlLabel
+                        control={<Checkbox value="remember" color="primary"/>}
+                        label="Remember me"
+                        onChange={(e) => e.target.checked ? setUserData("remember", true) : setUserData("remember", false)}
+                    />
+                </Box>
+
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{mt: 3, mb: 2}}
+                    onClick={loginButton}
+                >
+                    Log In
+                </Button>
+                <Grid container justifyContent="flex-end">
+                    <Grid item>
+                        <Link href="/signup" variant="body2">
+                            {/*TODO: Make this work*/}
+                            Don't have an account? Sign Up
+                        </Link>
+                    </Grid>
+                </Grid>
+            </Box>
+            {error && <ErrorMessage message={error} errID={errID}/>}
+        </Container>
     );
 }
 

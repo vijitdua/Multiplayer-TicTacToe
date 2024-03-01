@@ -1,8 +1,18 @@
 import {useState} from "react";
 import {signUp, login} from "../api/auth";
-import '../css/authentication.css';
 import ErrorMessage from "./ErrorMessage";
-import {CssBaseline} from "@mui/material";
+import {
+    Avatar,
+    Box,
+    Button,
+    Checkbox,
+    Container,
+    CssBaseline,
+    FormControlLabel, Grid, Link,
+    TextField,
+    Typography
+} from "@mui/material";
+import LockIcon from "@mui/icons-material/Lock";
 
 function SignUp() {
     const [user, setUser] = useState(null);
@@ -25,27 +35,117 @@ function SignUp() {
     }
 
     return (
-        <CssBaseline>
-            <div className="authDiv">
-                <form className="authForm">
-                    <h1>Sign Up</h1>
-                    <label> First Name </label> <br/>
-                    <input type="text" placeholder="Enter First Name"
-                           onChange={(event) => setUserData("firstName", event.target.value)}/> <br/>
-                    <label> Last Name </label> <br/>
-                    <input type="text" placeholder="Enter Last Name"
-                           onChange={(event) => setUserData("lastName", event.target.value)}/> <br/>
-                    <label> Username </label> <br/>
-                    <input type="text" placeholder="Enter username"
-                           onChange={(event) => setUserData("username", event.target.value)}/> <br/>
-                    <label> Password </label> <br/>
-                    <input type="password" placeholder="Enter password"
-                           onChange={(event) => setUserData("password", event.target.value)}/> <br/>
-                    <button type="button" onClick={signUpButton}>Sign Up</button>
-                    {error && <ErrorMessage message={error} errID={errID}/>}
-                </form>
-            </div>
-        </CssBaseline>
+
+        <Container maxWidth='xs'>
+            <Box
+                sx={{
+                    marginTop: 8,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+
+                    '& > *': {
+                        margin: '15px', // Apply margin to each child
+                    },
+                }}
+            >
+                <Box sx={{
+                    display: 'flex',
+                    '& > *': {
+                        margin: '10px',
+                    },
+                }}>
+                    <Avatar>
+                        <LockIcon/>
+                    </Avatar>
+                    <Typography variant="h4" component="h1">Sign Up</Typography>
+                </Box>
+
+                {/*<Grid sx={{ margin: '0 !important' }}>*/}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        margin: '0 !important',
+                    }}
+                >
+                    <TextField
+                        autoComplete="given-name"
+                        name="firstName"
+                        required
+                        fullWidth
+                        id="firstName"
+                        label="First Name"
+                        autoFocus
+                        onChange={(event) => setUserData("firstName", event.target.value)}
+                        sx={{marginRight: '5px'}}
+                    />
+
+                    <TextField
+                        required
+                        fullWidth
+                        id="lastName"
+                        label="Last Name"
+                        name="lastName"
+                        autoComplete="family-name"
+                        onChange={(event) => setUserData("username", event.target.value)}
+                        sx={{marginLeft: '5px'}}
+                    />
+
+                </Box>
+
+                <TextField
+                    label="Username"
+                    required
+                    fullWidth
+                    variant="outlined"
+                    margin='normal'
+                    autoFocus
+                    autoComplete="username"
+                    onChange={(event) => setUserData("username", event.target.value)}
+                />
+
+                <TextField
+                    label="Password"
+                    required
+                    fullWidth
+                    variant="outlined"
+                    type='password'
+                    margin='normal'
+                    autoFocus
+                    autoComplete="password"
+                    onChange={(event) => setUserData("password", event.target.value)}
+                />
+
+                <Box sx={{display: 'flex', justifyContent: 'flex-start', width: '100%'}}>
+
+                    <FormControlLabel
+                        control={<Checkbox value="remember" color="primary"/>}
+                        label="Remember me"
+                        onChange={(e) => e.target.checked ? setUserData("remember", true) : setUserData("remember", false)}
+                    />
+                </Box>
+
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{mt: 3, mb: 2}}
+                    onClick={signUpButton}
+                >
+                    Sign In
+                </Button>
+                <Grid container justifyContent="flex-end">
+                    <Grid item>
+                        <Link href="/login" variant="body2">
+                            {/*TODO: Make this work*/}
+                            Already have an account? Login
+                        </Link>
+                    </Grid>
+                </Grid>
+            </Box>
+            {error && <ErrorMessage message={error} errID={errID}/>}
+        </Container>
     );
 }
 
