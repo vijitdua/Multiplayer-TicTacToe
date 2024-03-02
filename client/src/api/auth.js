@@ -31,7 +31,7 @@ export async function login(userData) {
         cookie.set("firstName", res.data.firstName, cookieOptions);
         cookie.set("lastName", res.data.lastName, cookieOptions);
         cookie.set("token", res.data.token, cookieOptions);
-        console.log("logic successful");
+        console.log("login successful");
         return true;
 
     }catch(error){
@@ -61,6 +61,25 @@ export async function signUp(userData) {
     } catch (error) {
         console.log("An error occurred:", error);
         return("An unknown error occurred");
+    }
+}
+
+
+/**
+ * authenticateToken: Checks if user token is valid
+ * @param token userToken
+ * @returns true : If token valid
+ * @returns false : If authentication failed
+ */
+export async function authenticateToken(token){
+    console.log("Attempting to validate token");
+    try{
+        const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/authenticate`, token);
+        console.log("Server response:", res.data.res);
+        return res.data.res !== `Error: invalid token`;
+    }catch(error){
+        console.log("An error occurred:", error);
+        return false;
     }
 }
 

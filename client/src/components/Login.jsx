@@ -49,11 +49,16 @@ function Login() {
             >
                 <Box sx={{
                     display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
                     '& > *': {
                         margin: '10px',
                     },
                 }}>
-                    <Avatar>
+                    <Avatar
+                        size='large'
+                        sx={{bgcolor: '#53b0c9'}}
+                    >
                         <LockIcon/>
                     </Avatar>
                     <Typography variant="h4" component="h1">Log In</Typography>
@@ -100,10 +105,14 @@ function Login() {
                 >
                     Log In
                 </Button>
-                <Grid container justifyContent="flex-end">
+                <Grid container spacing={2} justifyContent='space-between'>
+                    <Grid item>
+                        <Link href='/' variant='body2'>
+                            Home
+                        </Link>
+                    </Grid>
                     <Grid item>
                         <Link href="/signup" variant="body2">
-                            {/*TODO: Make this work*/}
                             Don't have an account? Sign Up
                         </Link>
                     </Grid>

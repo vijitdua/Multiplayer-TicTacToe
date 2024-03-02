@@ -6,7 +6,6 @@ function LoginPage() {
         <CssBaseline>
             <Login />
         </CssBaseline>
-
     </>);
 }
 

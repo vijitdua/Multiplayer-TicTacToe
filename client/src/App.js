@@ -1,5 +1,5 @@
 import Game from "./pages/Game-page";
-import RoomManagement from "./pages/RoomManagement-page";
+import LandingPage from "./pages/LandingPage";
 import NoPage from "./pages/NoPage";
 import {BrowserRouter, Routes, Route} from "react-router-dom";
 import CreateRoom from "./components/CreateRoom";
@@ -10,7 +10,7 @@ function App() {
     return (<BrowserRouter>
         <Routes>
             <Route path="/">
-                {/*<Route index element={<Home />} />*/}
+                <Route index element={<LandingPage />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="signup" element={<SignUpPage />} />
                 <Route path="Game" element={<Game />} />

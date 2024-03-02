@@ -51,11 +51,16 @@ function SignUp() {
             >
                 <Box sx={{
                     display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
                     '& > *': {
                         margin: '10px',
                     },
                 }}>
-                    <Avatar>
+                    <Avatar
+                        size='large'
+                        sx={{bgcolor: '#343536'}}
+                    >
                         <LockIcon/>
                     </Avatar>
                     <Typography variant="h4" component="h1">Sign Up</Typography>
@@ -88,7 +93,7 @@ function SignUp() {
                         label="Last Name"
                         name="lastName"
                         autoComplete="family-name"
-                        onChange={(event) => setUserData("username", event.target.value)}
+                        onChange={(event) => setUserData("lastName", event.target.value)}
                         sx={{marginLeft: '5px'}}
                     />
 
@@ -133,12 +138,16 @@ function SignUp() {
                     sx={{mt: 3, mb: 2}}
                     onClick={signUpButton}
                 >
-                    Sign In
+                    Sign Up
                 </Button>
-                <Grid container justifyContent="flex-end">
+                <Grid container spacing={2} justifyContent='space-between'>
+                    <Grid item>
+                        <Link href='/' variant='body2'>
+                            Home
+                        </Link>
+                    </Grid>
                     <Grid item>
                         <Link href="/login" variant="body2">
-                            {/*TODO: Make this work*/}
                             Already have an account? Login
                         </Link>
                     </Grid>
