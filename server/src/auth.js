@@ -44,8 +44,8 @@ export async function signUp(req, res, dbConnector) {
         res.json({res: "success"});
 
         // Insert data into DataBase
-        await dbConnector.execute(`INSERT INTO ${process.env.MYSQL_USER_TABLE}(userID, username, firstName, lastName, hashedPassword, token)
-                            VALUES (?, ?, ?, ?, ?, ?);`, [userID, username, firstName, lastName, hashedPassword, token]);
+        await dbConnector.execute(`INSERT INTO ${process.env.MYSQL_USER_TABLE}(userID, username, firstName, lastName, hashedPassword, token, totalWins, totalLosses, totalTies)
+                            VALUES (?, ?, ?, ?, ?, ?, 0, 0, 0);`, [userID, username, firstName, lastName, hashedPassword, token]);
 
         console.log("A new user signed up!", req.body);
     }
@@ -109,4 +109,18 @@ export async function login(req, res, dbConnector) {
         console.error(`A user tried to login and caused an error: ${error}`);
         res.json({...req.body, res: `${error}`});
     }
+}
+
+/**
+ * Check if a token is valid. (receive a user token, and perform if it exists)
+ * @param req Client Request (only has token)
+ * @param res Client Response
+ * @param dbConnector dataBase where data is being accessed / modified
+ * @response JSON file with: server response message (success, or error message)
+ */
+export async function authenticateToken(req, res, dbConnector){
+    const givenToken = req.body.token;
+    let tokenResult = await dbConnector.execute(`SELECT token FROM ${process.env.MYSQL_USER_TABLE} WHERE token = ?;`, [givenToken]);
+    let response = tokenResult.length > 0 && tokenResult[0].length > 0 && givenToken === tokenResult[0][0].token ? 'token valid' : 'invalid token';
+    res.json({res: `${response}` });
 }

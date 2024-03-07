@@ -11,14 +11,14 @@ const cookie = new Cookies();
  */
 export async function login(userData) {
     console.log(`Attempting to login`);
-    try{
+    try {
         let res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/login`, userData);
         console.log("Server response: ", res.data.res);
         if (res.data.res === `Error: data incomplete`) {
             return ("Please fill all fields before you signup");
         }
         if (res.data.res === `Error: incorrect data`) {
-            return("Please check if your username and/or password are correct");
+            return ("Please check if your username and/or password are correct");
         }
 
         // Set relevant cookie expiry date
@@ -32,12 +32,13 @@ export async function login(userData) {
         cookie.set("lastName", res.data.lastName, cookieOptions);
         cookie.set("token", res.data.token, cookieOptions);
         console.log("login successful");
-        return true;
+        return true;  //TODO: Do this only if server response is true not by default
 
-    }catch(error){
+    } catch (error) {
         console.log("An error occurred:", error);
         return error;
     }
+    return "Unknown error";
 }
 
 /**
@@ -52,34 +53,35 @@ export async function signUp(userData) {
         const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/signup`, userData);
         console.log("Server response:", res.data.res);
         if (res.data.res === `Error: data incomplete`) {
-            return("Please fill all fields before you signup");
+            return ("Please fill all fields before you signup");
         }
         if (res.data.res === `Error: username taken`) {
-            return("Sorry that username already exists");
+            return ("Sorry that username already exists");
         }
-        return true;
+        return true; //TODO: Do this only if server response is true not by default
     } catch (error) {
         console.log("An error occurred:", error);
-        return("An unknown error occurred");
+        return ("An unknown error occurred");
     }
+    return "Unknown error";
 }
 
 
 /**
- * authenticateToken: Checks if user token is valid
- * @param token userToken
+ * authenticateToken: Checks if user token is valid from cookies
  * @returns true : If token valid
  * @returns false : If authentication failed
  */
-export async function authenticateToken(token){
+export async function authenticateToken() {
     console.log("Attempting to validate token");
-    try{
-        const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/authenticate`, token);
+    const token = cookie.get('token');
+    if (token === undefined) return false;
+    try {
+        const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/authenticate`, {token: token});
         console.log("Server response:", res.data.res);
-        return res.data.res !== `Error: invalid token`;
-    }catch(error){
+        return res.data.res === `token valid`;
+    } catch (error) {
         console.log("An error occurred:", error);
         return false;
     }
 }
-

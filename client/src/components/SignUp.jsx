@@ -7,7 +7,6 @@ import {
     Button,
     Checkbox,
     Container,
-    CssBaseline,
     FormControlLabel, Grid, Link,
     TextField,
     Typography
@@ -24,12 +23,13 @@ function SignUp() {
     }
 
     async function signUpButton() {
-        const signUpSuccessOrErr = await signUp(user);
-        if (signUpSuccessOrErr === true) {
+        const signUpSuccess = await signUp(user);
+        if (signUpSuccess === true) {
             setUserData("remember", true);
             await login(user);
+            window.location.href = '/';
         } else {
-            setErr(signUpSuccessOrErr);
+            setErr(signUpSuccess);
             setErrID(prevId => prevId + 1); // Increment errorId to ensure a new key for each error
         }
     }

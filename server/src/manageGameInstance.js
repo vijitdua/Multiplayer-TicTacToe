@@ -43,7 +43,7 @@ export async function gameEvents(req,res,dbConnector){
 
 /**
  * Creates a game room
- * @param req Client Request (json req must have .token, .playsFirst(1 or 2), .hostChar('X' or 'O')).
+ * @param req Client Request (json req must have .token, .hostPlaysFirst(true or false), .hostChar('X' or 'O')).
  * @param res Client Response
  * @param dbConnector dataBase where data is being accessed / modified
  * @response JSON file with: roomID, hostUserName, server response message (success, or error message)
@@ -54,7 +54,7 @@ export async function createRoom(req, res, dbConnector) {
         // Destructure data from request
         const hostToken = req.body.token;
         const roomID = uuidv4();
-        const hostPlaysFirst = req.body.hostPlaysFirst;
+        const hostPlaysFirst = (req.body.hostPlaysFirst) ? 1 : 0;
         const hostChar = req.body.hostChar;
         const p2Char = (hostChar === 'X') ? 'O' : 'X';
         const gameState = "waiting-join";
@@ -63,18 +63,23 @@ export async function createRoom(req, res, dbConnector) {
             throw new Error("data incomplete");
         }
 
+        if(!hostToken){
+            throw new Error("token not received");
+        }
+
         // Check if host token is correct and get host username
-        let hostUserName = await dbConnector.execute(`SELECT token FROM ${process.env.MYSQL_USER_TABLE} WHERE token = ?;`, [hostToken]);
+        let hostUserName = await dbConnector.execute(`SELECT username FROM ${process.env.MYSQL_USER_TABLE} WHERE token = ?;`, [hostToken]);
         if (!(hostUserName[0].length > 0)) {
             throw new Error("invalid token"); // User tried to sign in with invalid / fake token.
         }
         hostUserName = hostUserName[0][0].username;
+        await dbConnector.execute(`DELETE FROM ${process.env.MYSQL_GAME_TABLE} WHERE hostUserName = ?;`, [hostUserName]); // Delete existing game rooms for that username
 
         // Insert data into DataBase
         await dbConnector.query(`INSERT INTO ${process.env.MYSQL_GAME_TABLE}(roomID, hostUserName, state, hostPlaysFirst, p1Char, p2Char)
                             VALUES (?, ?, ?, ?, ?, ?);`, [roomID, hostUserName, gameState, hostPlaysFirst, hostChar, p2Char]);
 
-        console.log("A new game room was hosted!", req.body);
+        console.log("A new game room was hosted!", {roomID: roomID, hostUserName: hostUserName});
         res.json({roomID: roomID, hostUserName: hostUserName, res: "success"});
 
     }

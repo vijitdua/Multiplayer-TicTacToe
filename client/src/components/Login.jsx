@@ -18,17 +18,21 @@ import LockIcon from '@mui/icons-material/Lock';
 function Login() {
     const [user, setUser] = useState(null);
     const [error, setErr] = useState(null);
-    const [errID, setErrID] = useState(0); //Error Message component won't re-render if same error occurs, but if new error ID is sent, it knows its a new error
+    const [errID, setErrID] = useState(0); //Error Message component won't re-render if same error occurs, but if new error ID is sent, it knows it's a new error
 
     function setUserData(dataType, data) {
         setUser({...user, [dataType]: data});
     }
 
     async function loginButton() {
-        let err = await login(user);
-        if (err !== true) {
-            setErr(err);
+        let success = await login(user);
+        if (success !== true) {
+            setErr(success);
             setErrID(prevId => prevId + 1); // Increment errorId to ensure a new key for each error
+            return;
+        }
+        if (success === true){
+            window.location.href = '/';
         }
     }
 

@@ -5,24 +5,27 @@ const cookie = new Cookies();
 
 export async function createRoom(roomData){
     console.log("Attempting to create a room");
-    const req = {...roomData, cmd: `create`};
+    const token = cookie.get("token");
+    roomData = {...roomData, token: token};
     try{
-        let res = await Axios.get(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/gameEvents`, req);
+        let res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/createGame`, roomData);
         console.log(`Server response: `, res.data.res);
         if (res.data.res === `Error: data incomplete`) {
-            window.alert("Please fill all fields before you signup");
-            return false;
+            return "Please fill all fields before you create a game";
         }
         if (res.data.res === `Error: invalid token`) {
-            window.alert("Please login again, your login data seems incorrect");
-            //TODO: Clear all user login cookies?
-            return false;
+            return "There was an error with your login data, try signing out and logging in again";
+        }
+        if(res.data.res === `Error: token not received`){
+            return "Unable to process login data, please make sure you are logged in first";
         }
 
     }
-    catch(e){
-
+    catch(error){
+        console.log("An error occurred:", error);
+        return ("An unknown error occurred");
     }
+    return "unknown error";
 
 }
 
