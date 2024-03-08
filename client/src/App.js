@@ -5,6 +5,7 @@ import {BrowserRouter, Routes, Route} from "react-router-dom";
 import CreateRoom from "./components/CreateRoom";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
+import JoinRoom from "./components/JoinRoom";
 
 function App() {
     return (<BrowserRouter>
@@ -15,6 +16,7 @@ function App() {
                 <Route path="signup" element={<SignUpPage />} />
                 <Route path="Game" element={<Game />} />
                 <Route path="create" element={<CreateRoom />}/>
+                <Route path='join' element={<JoinRoom />}/>
                 <Route path="*" element={<NoPage />} />
             </Route>
         </Routes>

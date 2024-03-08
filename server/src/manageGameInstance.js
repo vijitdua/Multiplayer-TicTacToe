@@ -14,23 +14,22 @@ dotenv.config();
  * @param dbConnector dataBase where data is being accessed / modified
  * @returns {Promise<void>}
  */
-export async function gameEvents(req,res,dbConnector){
+export async function gameEvents(req, res, dbConnector) {
     // Keep this connection alive
     res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
     });
-    if(req.body.cmd === "create"){
+    if (req.body.cmd === "create") {
         await createRoom(req, res, dbConnector);
     }
-    if(req.body.cmd === "join"){
-        await joinRoom(req,res,dbConnector);
+    if (req.body.cmd === "join") {
+        await joinRoom(req, res, dbConnector);
     }
-    if(req.body.cmd === "play"){
+    if (req.body.cmd === "play") {
         //TODO: Add
-    }
-    else{
+    } else {
         // No update yet, check again after a delay
         setTimeout(gameEvents, 1000); // Adjust delay as needed
     }
@@ -60,11 +59,11 @@ export async function createRoom(req, res, dbConnector) {
         const p2Char = (hostChar === 'X') ? 'O' : 'X';
         const gameState = "waiting-join";
 
-        if(!hostPlaysFirst || !hostChar) {
+        if (!hostPlaysFirst || !hostChar) {
             throw new Error("data incomplete");
         }
 
-        if(!hostToken){
+        if (!hostToken) {
             throw new Error("token not received");
         }
 
@@ -105,15 +104,24 @@ export async function joinRoom(req, res, dbConnector) {
         const userToken = req.body.token;
         const attemptedJoinRoomID = req.body.roomID;
 
+        if (!attemptedJoinRoomID) {
+            throw new Error("data incomplete");
+        }
+
+        if (!userToken) {
+            throw new Error("token not received");
+        }
+
         // Find p2 username from token and check if token is correct
         let username = await dbConnector.execute(`SELECT username FROM ${process.env.MYSQL_USER_TABLE} WHERE token = ?;`, [userToken]);
-        if(!(username.length > 0)){
+        if (!(username.length > 0)) {
             throw new Error("invalid token");
         }
+        username = username[0][0].username;
 
         // Check if attempted join game room ID is real
         let gameRoomID = await dbConnector.execute(`SELECT roomID from ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [attemptedJoinRoomID]);
-        if(!(gameRoomID.length > 0 && gameRoomID[0].length > 0 && attemptedJoinRoomID === gameRoomID[0][0].token)){
+        if (!(gameRoomID.length > 0 && gameRoomID[0].length > 0 && attemptedJoinRoomID === gameRoomID[0][0].roomID)) {
             throw new Error("room not found");
         }
         gameRoomID = gameRoomID[0][0].roomID;
@@ -127,25 +135,34 @@ export async function joinRoom(req, res, dbConnector) {
         let newState = (doesHostPlayFirst) ? "p1-turn" : "p2-turn";
 
         // Insert data into the database
-        await dbConnector.execute(`INSERT INTO ${process.env.MYSQL_GAME_TABLE} (player2UserName, state)
-                                    VALUES(?, ?)`, [username, newState]);
+        await dbConnector.execute(`UPDATE ${process.env.MYSQL_GAME_TABLE}
+                                    SET player2UserName = ?, state = ?
+                                    WHERE roomID = ?`, [username, newState, gameRoomID]);
 
         // Get data about the host
-        let hostUsername = await dbConnector.execute(`SELECT username FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
-        let hostWins = await dbConnector.execute(`SELECT totalWins FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?` [hostUsername]);
-        let hostLosses = await dbConnector.execute(`SELECT totalLosses FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?` [hostUsername]);
-        let hostTies = await dbConnector.execute(`SELECT totalTies FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?` [hostUsername]);
-        let hostFName = await dbConnector.execute(`SELECT firstName FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?` [hostUsername]);
-        let hostLName = await dbConnector.execute(`SELECT lastName FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?` [hostUsername]);
+        let hostUsername = await dbConnector.execute(`SELECT hostUserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
+        hostUsername = hostUsername[0][0].hostUserName;
+        console.log(hostUsername);
+        let hostWins = await dbConnector.execute(`SELECT totalWins FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?`, [hostUsername]);
+        hostWins = hostWins[0][0].totalWins;
+        let hostLosses = await dbConnector.execute(`SELECT totalLosses FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?`, [hostUsername]);
+        hostLosses = hostLosses[0][0].totalLosses;
+        let hostTies = await dbConnector.execute(`SELECT totalTies FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?`, [hostUsername]);
+        hostTies = hostTies[0][0].totalTies;
+        let hostFName = await dbConnector.execute(`SELECT firstName FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?`, [hostUsername]);
+        hostFName = hostFName[0][0].firstName;
+        let hostLName = await dbConnector.execute(`SELECT lastName FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?`, [hostUsername]);
+        hostLName = hostLName[0][0].lastName;
 
-        if(hostUsername === username){
+
+        if (hostUsername === username) {
             throw new Error("same room"); //Joining own room
         }
 
         // Console logs
         console.log("A player has joined someone's game room!", {
             ...req.body,
-            roomID: roomID,
+            roomID: gameRoomID,
             hostUserName: hostUsername,
             playerUsername: username
         });

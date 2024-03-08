@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import mysql from "mysql2/promise"; //TODO: fix all SQL injections
 import {initializeDataBase} from "./initializeDataBase.js";
 import {signUp, login, authenticateToken} from "./auth.js";
-import {createRoom, gameEvents} from "./manageGameInstance.js";
+import {createRoom, gameEvents, joinRoom} from "./manageGameInstance.js";
 
 dotenv.config();
 
@@ -27,11 +27,10 @@ initializeDataBase().then((conn) => {
 // Posts
 app.post("/signup", async (req, res) => signUp(req, res, dbConnector));
 app.post("/login", async (req, res) => login(req, res, dbConnector));
-// app.post("/create-room", async(req,res) => createRoom(req,res,dbConnector));
-// app.post("/join-room", async(req,res)=> joinRoom(req,res,dbConnector));
 app.get("/gameEvents", async (req, res) => gameEvents(req, res, dbConnector));
 app.post("/createGame", async (req, res) => createRoom(req, res, dbConnector));
 app.post("/authenticate", async (req, res) => authenticateToken(req, res, dbConnector));
+app.post("/join", async(req,res)=> joinRoom(req,res,dbConnector));
 
 // Activate the server
 app.listen(process.env.SERVER_PORT, () => {
