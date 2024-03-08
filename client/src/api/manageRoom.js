@@ -19,6 +19,11 @@ export async function createRoom(roomData){
         if(res.data.res === `Error: token not received`){
             return "Unable to process login data, please make sure you are logged in first";
         }
+        if(res.data.res === `success`){
+            cookie.set("roomID", res.data.roomID);
+            // TODO: set other cookies if needed
+            return true;
+        }
 
     }
     catch(error){
