@@ -313,3 +313,51 @@ export async function play(req, res, dbConnector) {
         res.json({res: `${error}`})
     }
 }
+
+export async function exitGame(req,res,dbConnector){
+    console.log("Trying to exit a game");
+    try{
+        const token = req.body.token;
+        const attemptedRoomID = req.body.roomID;
+
+        // Check if token received
+        if (!token) {
+            throw new Error("token not received");
+        }
+
+        // Find username from token and check if token is correct
+        let username = await dbConnector.execute(`SELECT username FROM ${process.env.MYSQL_USER_TABLE} WHERE token = ?;`, [token]);
+        if (!(username.length > 0)) {
+            throw new Error("invalid token");
+        }
+        username = username[0][0].username;
+        // Check if game room exists
+        let gameRoomID = await dbConnector.execute(`SELECT roomID from ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [attemptedRoomID]);
+        if (attemptedRoomID !== gameRoomID[0][0].roomID) {
+            throw new Error("room not found");
+        }
+        gameRoomID = gameRoomID[0][0].roomID;
+
+        // Find if player is host or guest
+        let hostOrGuest = false;
+        let temp = await dbConnector.execute(`SELECT hostUserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
+        if (temp[0][0].hostUserName === username) {
+            hostOrGuest = 'host';
+        }
+        temp = await dbConnector.execute(`SELECT player2UserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
+        if (temp[0][0].player2UserName === username) {
+            hostOrGuest = 'guest';
+        }
+
+        if(hostOrGuest !== false){
+            await dbConnector.execute(`DELETE FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
+        }
+        else{
+            throw new Error("not your game");
+        }
+
+
+    }catch(error){
+        console.error(`A user tried to exit a game and caused an error: ${error}`)
+    }
+}

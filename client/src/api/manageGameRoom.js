@@ -19,6 +19,7 @@ export function stringBoardToArray(boardString){
 
 // Create a room
 export async function createRoom(roomData) {
+    clearGameCookies();
     console.log("Attempting to create a room");
     const token = cookie.get("token");
     roomData = {...roomData, token: token};
@@ -54,6 +55,7 @@ export async function createRoom(roomData) {
 
 // Join a room
 export async function joinRoom(roomID) {
+    clearGameCookies();
     console.log(`Attempting to join a game`);
     const token = cookie.get("token");
 
@@ -105,6 +107,7 @@ export async function joinRoom(roomID) {
 export function clearGameCookies(){
     cookie.remove("roomType");
     cookie.remove("roomID");
+    cookie.remove("state");
     cookie.remove("oppUserName");
     cookie.remove("oppFirstName");
     cookie.remove("oppLastName");
@@ -112,6 +115,7 @@ export function clearGameCookies(){
     cookie.remove("oppLosses");
     cookie.remove("oppTies");
     cookie.remove("game");
+    cookie.remove("yourChar");
 }
 
 // Check if the room is valid
@@ -136,4 +140,3 @@ export async function checkIfValidRoom(){
 export function getRoomID(){
     return cookie.get("roomID");
 }
-

@@ -25,8 +25,10 @@ function LoggedInLandingPage() {
     async function checkIfInGame() {
         let status = await checkIfValidRoom();
         setInGameStatus(status);
+        if(status === false){
+            clearGameCookies();
+        }
         return status;
-        // Remove room data if not in a valid room
     }
 
     useEffect( () => {
@@ -65,8 +67,6 @@ function LoggedInLandingPage() {
 
     // If in game
     if (inGameStatus === true) {
-        // setInterval(() => {setIsStatusUpdate(refreshGame())}, 2000);
-
         return (<>
             <MyAppBar/>
             <Container maxWidth='md'>
@@ -77,9 +77,8 @@ function LoggedInLandingPage() {
                     },
                 }}>
                     <StatusBar gameStatus={status}/> <br/>
-                    {/*//TODO: Fix*/}
                     <Board grid={board}/>
-                    <PlayerDataDisplay waitingForJoin={waitingForJoin}/>
+                    <PlayerDataDisplay waitingForJoin={waitingForJoin} gameStatus={status}/>
                 </Box>
             </Container>
         </>);

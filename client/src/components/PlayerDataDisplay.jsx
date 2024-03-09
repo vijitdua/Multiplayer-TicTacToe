@@ -2,15 +2,15 @@ import {Grid, Link, Typography} from "@mui/material";
 import {getOpponentUsername} from "../api/manageGameRoom";
 import Cookies from "universal-cookie";
 
-function PlayerDataDisplay({waitingForJoin}){
+function PlayerDataDisplay({waitingForJoin, gameStatus}){
 
     const cookie = new Cookies();
 
-    if(waitingForJoin){
+    if(waitingForJoin || gameStatus === `waiting-join`){
         return (
             <Grid container spacing={2} justifyContent='space-between'>
                 <Grid item>
-                    <Typography variant='p' component='p'> Opponent: ---</Typography>
+                    <Typography variant='p' component='p'> Opponent: waiting</Typography>
                     <Typography variant='p'
                                 component='p'> ---, --- </Typography>
                     <Typography variant='p' component='p'> Games Won: -, Games

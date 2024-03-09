@@ -39,7 +39,7 @@ const StatusBar = ({gameStatus}) => {
             statusMessage = `${cookie.get("username")} Won!`;
         }
         else if(cookie.get("roomType") === `hosted`){
-            statusMessage = `${cookie.get("oppUsername")} Won!`;
+            statusMessage = `${cookie.get("oppUserName")} Won!`;
         }
     } else if(gameStatus === `tie`){
         statusMessage = `The game is a Tie!`;
