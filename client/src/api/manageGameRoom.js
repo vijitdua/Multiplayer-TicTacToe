@@ -133,3 +133,4 @@ export async function checkIfValidRoom(){
 export function getRoomID(){
     return cookie.get("roomID");
 }
+

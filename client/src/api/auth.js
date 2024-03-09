@@ -32,6 +32,9 @@ export async function login(userData) {
         cookie.set("firstName", res.data.firstName, cookieOptions);
         cookie.set("lastName", res.data.lastName, cookieOptions);
         cookie.set("token", res.data.token, cookieOptions);
+        cookie.set(`wins`, res.data.wins, cookieOptions);
+        cookie.set(`losses`, res.data.losses, cookieOptions);
+        cookie.set(`ties`, res.data.ties, cookieOptions);
         console.log("login successful");
         return true;  //TODO: Do this only if server response is true not by default
 

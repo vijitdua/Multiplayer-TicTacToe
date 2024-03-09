@@ -6,6 +6,7 @@ import Board from "../components/Board";
 import {Box, Container, Grid} from "@mui/material";
 import CreateRoom from "../components/CreateRoom";
 import JoinRoom from "../components/JoinRoom";
+import PlayerDataDisplay from "../components/PlayerDataDisplay";
 
 function LoggedInLandingPage() {
     const [inGameStatus, setInGameStatus] = useState(null);
@@ -36,6 +37,7 @@ function LoggedInLandingPage() {
                     <StatusBar gameStatus={`p1-turn`}/> <br/>
                     {/*//TODO: Fix*/}
                     <Board/>
+                    <PlayerDataDisplay/>
                 </Box>
             </Container>
         </>);

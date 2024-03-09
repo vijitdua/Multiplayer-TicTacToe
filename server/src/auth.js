@@ -99,10 +99,16 @@ export async function login(req, res, dbConnector) {
         firstName = firstName[0][0].firstName;
         let token = await dbConnector.execute(`SELECT token FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?;`, [username]);
         token = token[0][0].token;
+        let totalWins = await dbConnector.execute(`SELECT totalWins FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?;`, [username]);
+        let totalLosses = await dbConnector.execute(`SELECT totalLosses FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?;`, [username]);
+        let totalTies = await dbConnector.execute(`SELECT totalTies FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?;`, [username]);
+        totalWins = totalWins[0][0].totalWins;
+        totalLosses = totalLosses[0][0].totalLosses;
+        totalTies = totalTies[0][0].totalTies;
 
         // Login successful, give user login data
         console.log("A user logged in!", req.body);
-        res.json({username, firstName, lastName, res: "success", token: token});
+        res.json({username, firstName, lastName, res: "success", token: token, wins: totalWins, losses: totalLosses, ties: totalTies});
     }
         // Error catching, and send error data to client
     catch (error) {
