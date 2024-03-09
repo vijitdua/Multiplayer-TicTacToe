@@ -33,7 +33,7 @@ function PlayerDataDisplay({waitingForJoin, gameStatus}){
         return (
             <Grid container spacing={2} justifyContent='space-between'>
                 <Grid item>
-                    <Typography variant='p' component='p'> Opponent: {cookie.get("oppUserName")}</Typography>
+                    <Typography variant='p' component='p'> Opponent ({cookie.get('yourChar') === `X` ? 'O' : 'X'}) : {cookie.get("oppUserName")}</Typography>
                     <Typography variant='p'
                                 component='p'> {cookie.get("oppLastName")}, {cookie.get("oppFirstName")} </Typography>
                     <Typography variant='p' component='p'> Games Won: {cookie.get("oppWins")}, Games
@@ -42,7 +42,7 @@ function PlayerDataDisplay({waitingForJoin, gameStatus}){
                         Games: {cookie.get("oppTies") + cookie.get("oppWins") + cookie.get("oppLosses")} </Typography>
                 </Grid>
                 <Grid item>
-                    <Typography variant='p' component='p'> You: {cookie.get("username")}</Typography>
+                    <Typography variant='p' component='p'> You ({cookie.get('yourChar')}) : {cookie.get("username")}</Typography>
                     <Typography variant='p'
                                 component='p'> {cookie.get("lastName")}, {cookie.get("firstName")} </Typography>
                     <Typography variant='p' component='p'> Games Won: {cookie.get("wins")}, Games
