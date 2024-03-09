@@ -1,43 +1,85 @@
 import MyAppBar from "../components/MyAppBar";
 import {useEffect, useState} from "react";
-import {checkIfValidRoom, clearGameCookies} from "../api/manageGameRoom";
+import {checkIfValidRoom, clearGameCookies, stringBoardToArray} from "../api/manageGameRoom";
 import StatusBar from "../components/StatusBar";
 import Board from "../components/Board";
 import {Box, Container, Grid} from "@mui/material";
 import CreateRoom from "../components/CreateRoom";
 import JoinRoom from "../components/JoinRoom";
 import PlayerDataDisplay from "../components/PlayerDataDisplay";
+import {refreshGame} from "../api/game";
+import Cookies from "universal-cookie";
 
 function LoggedInLandingPage() {
+    const cookie = new Cookies();
     const [inGameStatus, setInGameStatus] = useState(null);
+    // Add board data here
+    const [status, setStatus] = useState(cookie.get(`state`));
+    const [waitingForJoin, setWaitingForJoin] = useState(null);
+    const [board, setBoard] = useState([
+        [null, null, null],
+        [null, null, null],
+        [null, null, null]
+    ]);
 
     async function checkIfInGame() {
         let status = await checkIfValidRoom();
         setInGameStatus(status);
-
+        return status;
         // Remove room data if not in a valid room
     }
 
-    useEffect(() => {
-        checkIfInGame();
+    useEffect( () => {
+        async function func(){
+            let inGame = await checkIfInGame();
+            if (inGame) {
+                if(cookie.get('roomType') === `hosted` && !(cookie.get(`oppUserName`))){
+                    setWaitingForJoin(true);
+                }
+                else{
+                    setWaitingForJoin(false);
+                }
+            }
+        }
+        func();
     }, []);
+
+    useEffect(() => {
+        async function refreshFunc(){
+            let didRefreshGameWork = await refreshGame();
+            if(didRefreshGameWork){
+                setWaitingForJoin(false);
+                setStatus(cookie.get('state'));
+                setBoard(stringBoardToArray(cookie.get('game')));
+            }
+        }
+
+        const interval = setInterval(() => {
+            refreshFunc();
+        }, 1000);
+
+        //Clearing the interval
+        return () => clearInterval(interval);
+    }, []);
+
 
     // If in game
     if (inGameStatus === true) {
+        // setInterval(() => {setIsStatusUpdate(refreshGame())}, 2000);
+
         return (<>
             <MyAppBar/>
             <Container maxWidth='md'>
                 <Box sx={{
                     marginTop: `30px`,
                     '& > *': {
-                    margin: `10px`
-                },
+                        margin: `10px`
+                    },
                 }}>
-                    hi //TODO: Add game stuff
-                    <StatusBar gameStatus={`p1-turn`}/> <br/>
+                    <StatusBar gameStatus={status}/> <br/>
                     {/*//TODO: Fix*/}
-                    <Board/>
-                    <PlayerDataDisplay/>
+                    <Board grid={board}/>
+                    <PlayerDataDisplay waitingForJoin={waitingForJoin}/>
                 </Box>
             </Container>
         </>);

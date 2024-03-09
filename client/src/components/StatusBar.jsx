@@ -11,27 +11,27 @@ const StatusBar = ({gameStatus}) => {
     const roomID = getRoomID();
 
     if (gameStatus === 'waiting-join') {
-        statusMessage = `Waiting for an opponent to join the room \n RoomID = ${roomID}`;
+        statusMessage = <> Waiting for an opponent to join the room <br/> RoomID: {roomID} </>;
     } else if (gameStatus === 'p1-turn') {
         if(cookie.get("roomType") === `hosted`){
             statusMessage = `It is ${cookie.get("username")}'s turn`;
         }
         else if(cookie.get("roomType") === `joined`){
-            statusMessage = `It is ${cookie.get("oppUsername")}'s turn`;
+            statusMessage = `It is ${cookie.get("oppUserName")}'s turn`;
         }
     } else if(gameStatus === `p2-turn`){
         if(cookie.get("roomType") === `joined`){
             statusMessage = `It is ${cookie.get("username")}'s turn`;
         }
         else if(cookie.get("roomType") === `hosted`){
-            statusMessage = `It is ${cookie.get("oppUsername")}'s turn`;
+            statusMessage = `It is ${cookie.get("oppUserName")}'s turn`;
         }
     } else if(gameStatus === `win-p1`){
         if(cookie.get("roomType") === `hosted`){
             statusMessage = `${cookie.get("username")} Won!`;
         }
         else if(cookie.get("roomType") === `joined`){
-            statusMessage = `${cookie.get("oppUsername")} Won!`;
+            statusMessage = `${cookie.get("oppUserName")} Won!`;
         }
     }
     else if(gameStatus === `win-p2`){

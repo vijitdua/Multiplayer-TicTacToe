@@ -1,7 +1,11 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Grid, Paper, Button, Container, Box} from '@mui/material';
+import ErrorMessage from "./ErrorMessage";
+import {login} from "../api/auth";
+import {makeMove} from "../api/game";
+import Cookies from "universal-cookie";
 
-function Square({value, onSquareClick, row, col}) {
+function Square({value, onSquareClick}) {
     return (<Button
         variant="outlined"
         sx={{
@@ -16,19 +20,21 @@ function Square({value, onSquareClick, row, col}) {
     </Button>);
 }
 
-function Board() {
+function Board({grid}) {
+    const cookie = new Cookies();
+    const [error, setErr] = useState(null);
+    const [errID, setErrID] = useState(0); //Error Message component won't re-render if same error occurs, but if new error ID is sent, it knows it's a new error
 
-    function onClickButton(row, col) {
+    async function onClickButton(row, col) {
+        let success = await makeMove(row, col, cookie.get("roomID"));
+        if (success !== true) {
+            setErr(success);
+            setErrID(prevId => prevId + 1); // Increment errorId to ensure a new key for each error
+        }
+
         //TODO
     }
 
-
-    // Create a 3x3 grid
-    let grid = [
-        [null, null, null],
-        [null, null, null],
-        [null, null, null]
-    ]; //TODO: FIX GRID, HOW DO YOU GET THIS
 
     return (
         <Box sx={{
@@ -38,17 +44,18 @@ function Board() {
             gap: 1, // Space between squares
             alignItems: 'stretch', // Stretch items to fill the container
         }}>
-            <Square value={grid[0][0]} onSquareClick={() => onClickButton(0, 0)} row={0} col={0}/>
-            <Square value={grid[0][1]} onSquareClick={() => onClickButton(0, 1)} row={0} col={1}/>
-            <Square value={grid[0][2]} onSquareClick={() => onClickButton(0, 2)} row={0} col={2}/>
+            <Square value={grid[0][0]} onSquareClick={() => onClickButton(0, 0)}/>
+            <Square value={grid[0][1]} onSquareClick={() => onClickButton(0, 1)}/>
+            <Square value={grid[0][2]} onSquareClick={() => onClickButton(0, 2)}/>
 
-            <Square value={grid[1][0]} onSquareClick={() => onClickButton(1, 0)} row={1} col={0}/>
-            <Square value={grid[1][1]} onSquareClick={() => onClickButton(1, 1)} row={1} col={1}/>
-            <Square value={grid[1][2]} onSquareClick={() => onClickButton(1, 2)} row={1} col={2}/>
+            <Square value={grid[1][0]} onSquareClick={() => onClickButton(1, 0)}/>
+            <Square value={grid[1][1]} onSquareClick={() => onClickButton(1, 1)}/>
+            <Square value={grid[1][2]} onSquareClick={() => onClickButton(1, 2)}/>
 
-            <Square value={grid[2][0]} onSquareClick={() => onClickButton(2, 0)} row={2} col={0}/>
-            <Square value={grid[2][1]} onSquareClick={() => onClickButton(2, 1)} row={2} col={1}/>
-            <Square value={grid[2][2]} onSquareClick={() => onClickButton(2, 2)} row={2} col={2}/>
+            <Square value={grid[2][0]} onSquareClick={() => onClickButton(2, 0)}/>
+            <Square value={grid[2][1]} onSquareClick={() => onClickButton(2, 1)}/>
+            <Square value={grid[2][2]} onSquareClick={() => onClickButton(2, 2)}/>
+            {error && <ErrorMessage message={error} errID={errID}/>}
         </Box>
     );
 };

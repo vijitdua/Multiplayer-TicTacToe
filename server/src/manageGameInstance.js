@@ -9,39 +9,6 @@ dotenv.config();
 
 //TODO: Change code to add cleanup, and destroying rooms without server restart
 
-/**
- * Manages communicating game data and events
- * @param req Client Request
- * @param res Client Response
- * @param dbConnector dataBase where data is being accessed / modified
- * @returns {Promise<void>}
- */
-export async function gameEvents(req, res, dbConnector) {
-    // Keep this connection alive
-    res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-    });
-    if (req.body.cmd === "create") {
-        await createRoom(req, res, dbConnector);
-    }
-    if (req.body.cmd === "join") {
-        await joinRoom(req, res, dbConnector);
-    }
-    if (req.body.cmd === "play") {
-        //TODO: Add
-    } else {
-        // No update yet, check again after a delay
-        setTimeout(gameEvents, 1000); // Adjust delay as needed
-    }
-
-    // const checkUpdates = ;
-
-    res.json({});
-
-
-}
 
 /**
  * Creates a game room
@@ -82,7 +49,7 @@ export async function createRoom(req, res, dbConnector) {
                             VALUES (?, ?, ?, ?, ?, ?);`, [roomID, hostUserName, gameState, hostPlaysFirst, hostChar, p2Char]);
 
         console.log("A new game room was hosted!", {roomID: roomID, hostUserName: hostUserName});
-        res.json({roomID: roomID, hostUserName: hostUserName, res: "success"});
+        res.json({roomID: roomID, hostUserName: hostUserName, res: "success", char: hostChar});
 
     }
         // Error catching, and send error data to client
@@ -133,6 +100,10 @@ export async function joinRoom(req, res, dbConnector) {
         doesHostPlayFirst = doesHostPlayFirst[0][0].hostPlaysFirst;
         doesHostPlayFirst = (doesHostPlayFirst !== 0); // convert number to boolean
 
+        // Find player's char
+        let p2Char = await dbConnector.execute(`SELECT p2Char FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
+        p2Char = p2Char[0][0].p2Char;
+
         // Find whose turn the game begins with
         let newState = (doesHostPlayFirst) ? "p1-turn" : "p2-turn";
 
@@ -180,7 +151,8 @@ export async function joinRoom(req, res, dbConnector) {
             hostWins: hostWins,
             hostLosses: hostLosses,
             hostTies: hostTies,
-            board: ticTacToeBoard
+            board: ticTacToeBoard,
+            char: p2Char
         });
     }
         // Error catching, and send error data to client
@@ -197,13 +169,13 @@ export async function joinRoom(req, res, dbConnector) {
  * @param dbConnector
  * @returns {Promise<void>}
  */
-export async function getGameState(req, res, dbConnector){
+export async function getGameState(req, res, dbConnector) {
     const attemptedRoomID = req.params.gameID;
     try {
 
         // Check if game room ID is real
         let gameRoomID = await dbConnector.execute(`SELECT roomID from ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [attemptedRoomID]);
-        if (!(gameRoomID.length > 0 && gameRoomID[0].length > 0 && attemptedRoomID === gameRoomID[0][0].roomID)) {
+        if (attemptedRoomID !== gameRoomID[0][0].roomID) {
             throw new Error("room not found");
         }
         gameRoomID = gameRoomID[0][0].roomID;
@@ -222,24 +194,113 @@ export async function getGameState(req, res, dbConnector){
 
         // Get current game board
         let game = await dbConnector.execute(`SELECT game FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [gameRoomID]);
-        if(gameState !== `waiting-join`){
+        if (gameState !== `waiting-join`) {
             game = game[0][0].game;
             game = stringBoardToArray(game);
-        }
-        else{
+        } else {
             game = blankBoard();
         }
 
         // Respond back with the state of the game
         res.json({res: `success`, state: gameState, board: game, hUsername: hUsername, gUsername: gUsername});
-    }
-    catch(error){
+    } catch (error) {
         console.error(`A user tried to get a game's status and caused an error: ${error}`);
         res.json({res: `${error}`});
     }
 
 }
 
-export async function play(req,res,dbConnector){
+export async function play(req, res, dbConnector, attemptedRoomID) {
+    try {
+        const token = req.body.token;
+        const row = req.body.row;
+        const col = req.body.col;
 
+        // Check if token received
+        if (!token) {
+            throw new Error("token not received");
+        }
+
+        // Find username from token and check if token is correct
+        let username = await dbConnector.execute(`SELECT username FROM ${process.env.MYSQL_USER_TABLE} WHERE token = ?;`, [userToken]);
+        if (!(username.length > 0)) {
+            throw new Error("invalid token");
+        }
+        username = username[0][0].username;
+
+        // Check if game room exists
+        let gameRoomID = await dbConnector.execute(`SELECT roomID from ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [attemptedRoomID]);
+        if (attemptedRoomID !== gameRoomID[0][0].roomID) {
+            throw new Error("room not found");
+        }
+        gameRoomID = gameRoomID[0][0].roomID;
+
+        // Check if data is complete
+        if (!row || !col) {
+            throw new Error("data incomplete");
+        }
+
+        // Find game state
+        let gameState = await dbConnector.execute(`SELECT state FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [gameRoomID]);
+        gameState = gameState[0][0].state;
+
+        // If the game hasn't started, you can't play
+        if (gameState === `waiting-join`) {
+            throw new Error(`waiting-join`);
+        }
+
+        // Find if player is host or guest
+        let hostOrGuest;
+        let temp = await dbConnector.execute(`SELECT hostUserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?` [gameRoomID]);
+        if (temp[0][0].hostUserName === username) {
+            hostOrGuest = 'host';
+        }
+        temp = await dbConnector.execute(`SELECT player2UserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?` [gameRoomID]);
+        if (temp[0][0].player2UserName === username) {
+            hostOrGuest = 'guest';
+        }
+
+        // Check if it is the correct turn
+        if ((hostOrGuest === `host` && gameState === `p1-turn`) || (hostOrGuest === `guest` && gameState === `p2-turn`)){
+
+            let char;
+
+            // find player char
+            if (hostOrGuest === `host`) {
+                char = await dbConnector.execute(`SELECT p1Char FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?` [gameRoomID]);
+                char = char[0][0].p1Char;
+            } else if (hostOrGuest === `guest`) {
+                char = await dbConnector.execute(`SELECT p2Char FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?` [gameRoomID]);
+                char = char[0][0].p2Char;
+            }
+
+            // Get current game board
+            let game = await dbConnector.execute(`SELECT game FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [gameRoomID]);
+            game = game[0][0].game;
+            game = stringBoardToArray(game);
+
+            // Check if the board has space available to move on
+            if (game[row][col] === null) {
+                game = makeMove(char, row, col);
+                let baordString = boardArrayToString(game);
+                await dbConnector.execute(`UPDATE ${process.env.MYSQL_GAME_TABLE}
+                                    game = ?
+                                    WHERE roomID = ?`, [boardString, gameRoomID]);
+                if (gameWinStatus(game) !== null) {
+                    await dbConnector.execute(`UPDATE ${process.env.MYSQL_GAME_TABLE}
+                                    status = ?
+                                    WHERE roomID = ?`, [gameWinStatus(game), gameRoomID]);
+                }
+            } else {
+                throw new Error(`occupied`);
+            }
+            res.json({res: `success`});
+        } else{
+            throw new Error("not your turn");
+        }
+
+    } catch (error) {
+        console.error(`A user tried to make a move and caused an error: ${error}`);
+        res.json({res: `${error}`})
+    }
 }

@@ -37,6 +37,8 @@ export async function createRoom(roomData) {
         if (res.data.res === `success`) {
             cookie.set("roomType", "hosted");
             cookie.set("roomID", res.data.roomID);
+            cookie.set("yourChar", res.data.char);
+            cookie.remove("oppUserName");
             //TODO: Check if more things are needed
             return true;
         }
@@ -86,6 +88,7 @@ export async function joinRoom(roomID) {
             cookie.set("oppLosses", res.data.hostLosses);
             cookie.set("oppTies", res.data.hostTies);
             cookie.set("game", boardArrayToString(res.data.board));
+            cookie.set("yourChar", res.data.char);
             //TODO: Check if more things are needed
             return true;
         }
