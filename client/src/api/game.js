@@ -105,9 +105,9 @@ export async function makeMove(row, col, roomID) {
     return "unknown error";
 }
 
-export function updateOwnScores(){
+export async function updateOwnScores(){
     try{
-        const data = getPlayerData(cookie.get("username"));
+        const data = await getPlayerData(cookie.get("username"));
         cookie.set("losses", data.totalLosses);
         cookie.set("wins", data.totalWins);
         cookie.set("ties", data.totalTies);

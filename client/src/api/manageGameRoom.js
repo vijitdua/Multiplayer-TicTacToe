@@ -42,7 +42,7 @@ export async function createRoom(roomData) {
             cookie.set("yourChar", res.data.char);
             cookie.remove("oppUserName");
             //TODO: Check if more things are needed
-            updateOwnScores();
+            await updateOwnScores();
             return true;
         }
 
@@ -94,7 +94,7 @@ export async function joinRoom(roomID) {
             cookie.set("game", boardArrayToString(res.data.board));
             cookie.set("yourChar", res.data.char);
             //TODO: Check if more things are needed
-            updateOwnScores();
+            await updateOwnScores();
             return true;
         }
 

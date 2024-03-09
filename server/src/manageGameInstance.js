@@ -5,9 +5,6 @@ import {authenticateToken} from "./auth.js";
 import {getPlayerData} from "./misc.js";
 
 dotenv.config();
-//TODO: fix all SQL injections
-
-//TODO: Change code to add cleanup, and destroying rooms without server restart
 
 
 /**
@@ -250,12 +247,15 @@ export async function play(req, res, dbConnector) {
 
         // Find if player is host or guest
         let hostOrGuest;
-        let temp = await dbConnector.execute(`SELECT hostUserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
-        if (temp[0][0].hostUserName === username) {
+        let hostUsername = await dbConnector.execute(`SELECT hostUserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
+        hostUsername = hostUsername[0][0].hostUserName;
+        let guestUsername = await dbConnector.execute(`SELECT player2UserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
+        guestUsername = guestUsername[0][0].player2UserName;
+
+        if (hostUsername === username) {
             hostOrGuest = 'host';
         }
-        temp = await dbConnector.execute(`SELECT player2UserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
-        if (temp[0][0].player2UserName === username) {
+        if (guestUsername === username) {
             hostOrGuest = 'guest';
         }
 
@@ -287,10 +287,34 @@ export async function play(req, res, dbConnector) {
                     let winStatus = gameWinStatus(game);
                     if (winStatus === `T`) {
                         winStatus = `tie`;
+
+                        await dbConnector.execute(`UPDATE ${process.env.MYSQL_USER_TABLE}
+                                   SET totalTies = totalTies + 1
+                                   WHERE username = ?`, [hostUsername]);
+
+                        await dbConnector.execute(`UPDATE ${process.env.MYSQL_USER_TABLE}
+                                   SET totalTies = totalTies + 1
+                                   WHERE username = ?`, [guestUsername]);
                     }
                     let p1Char = await dbConnector.execute(`SELECT p1Char FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
                     if (winStatus === `X` || winStatus === `O`) {
                         winStatus = (winStatus === p1Char) ? `win-p1` : `win-p2`;
+                        if(winStatus === `win-p1`){
+                            await dbConnector.execute(`UPDATE ${process.env.MYSQL_USER_TABLE}
+                                   SET totalWins = totalWins + 1
+                                   WHERE username = ?`, [hostUsername]);
+                            await dbConnector.execute(`UPDATE ${process.env.MYSQL_USER_TABLE}
+                                   SET totalLosses = totalLosses + 1
+                                   WHERE username = ?`, [guestUsername]);
+                        }
+                        if(winStatus === `win-p2`){
+                            await dbConnector.execute(`UPDATE ${process.env.MYSQL_USER_TABLE}
+                                   SET totalWins = totalWins + 1
+                                   WHERE username = ?`, [guestUsername]);
+                            await dbConnector.execute(`UPDATE ${process.env.MYSQL_USER_TABLE}
+                                   SET totalLosses = totalLosses + 1
+                                   WHERE username = ?`, [hostUsername]);
+                        }
                     }
                     await dbConnector.execute(`UPDATE ${process.env.MYSQL_GAME_TABLE}
                                     SET state = ?
