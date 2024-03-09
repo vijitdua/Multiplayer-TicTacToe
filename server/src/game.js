@@ -75,13 +75,16 @@ export function gameWinStatus(board){
     }
 
     function checkIfBoardFull(board) {
-        for (let i = 0; i < 9; i++) {
-            if (board[i] === null) {
-                return false;
+        for (let row = 0; row < board.length; row++) {
+            for (let col = 0; col < board[row].length; col++) {
+                if (board[row][col] === null) {
+                    return false;
+                }
             }
         }
         return true;
     }
+
 
     // Checks for vertical wins on a 2D board
     function checkVerticalWin(board) {

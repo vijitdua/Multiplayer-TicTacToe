@@ -260,7 +260,7 @@ export async function play(req, res, dbConnector) {
         }
 
         // Check if it is the correct turn
-        if ((hostOrGuest === `host` && gameState === `p1-turn`) || (hostOrGuest === `guest` && gameState === `p2-turn`)){
+        if ((hostOrGuest === `host` && gameState === `p1-turn`) || (hostOrGuest === `guest` && gameState === `p2-turn`)) {
             let char;
 
             // find player char
@@ -284,19 +284,27 @@ export async function play(req, res, dbConnector) {
                                     SET game = ?
                                     WHERE roomID = ?`, [boardString, gameRoomID]);
                 if (gameWinStatus(game) !== null) {
+                    let winStatus = gameWinStatus(game);
+                    if (winStatus === `T`) {
+                        winStatus = `tie`;
+                    }
+                    let p1Char = await dbConnector.execute(`SELECT p1Char FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
+                    if (winStatus === `X` || winStatus === `O`) {
+                        winStatus = (winStatus === p1Char) ? `win-p1` : `win-p2`;
+                    }
                     await dbConnector.execute(`UPDATE ${process.env.MYSQL_GAME_TABLE}
                                     SET state = ?
-                                    WHERE roomID = ?`, [gameWinStatus(game), gameRoomID]);
-                } else{
+                                    WHERE roomID = ?`, [winStatus, gameRoomID]);
+                } else {
                     await dbConnector.execute(`UPDATE ${process.env.MYSQL_GAME_TABLE}
                                     SET state = ?
-                                    WHERE roomID = ?`, [(gameState === `p1-turn`) ? 'p2-turn' : 'p1-turn' , gameRoomID]);
+                                    WHERE roomID = ?`, [(gameState === `p1-turn`) ? 'p2-turn' : 'p1-turn', gameRoomID]);
                 }
             } else {
                 throw new Error(`occupied`);
             }
             res.json({res: `success`});
-        } else{
+        } else {
             throw new Error("not your turn");
         }
 
