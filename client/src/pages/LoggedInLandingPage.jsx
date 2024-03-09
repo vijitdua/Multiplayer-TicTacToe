@@ -23,36 +23,47 @@ function LoggedInLandingPage() {
     ]);
 
     async function checkIfInGame() {
-        let status = await checkIfValidRoom();
-        setInGameStatus(status);
-        if(status === false){
-            clearGameCookies();
+        if(cookie.get(`roomID`)){
+            let status = await checkIfValidRoom();
+            setInGameStatus(status);
+            if (status === false) {
+                clearGameCookies();
+            }
+            return status;
         }
-        return status;
+        return false;
     }
 
-    useEffect( () => {
-        async function func(){
+    useEffect(() => {
+        async function func() {
             let inGame = await checkIfInGame();
             if (inGame) {
-                if(cookie.get('roomType') === `hosted` && !(cookie.get(`oppUserName`))){
+                if (cookie.get('roomType') === `hosted` && !(cookie.get(`oppUserName`))) {
                     setWaitingForJoin(true);
-                }
-                else{
+                } else {
                     setWaitingForJoin(false);
                 }
             }
         }
+
         func();
     }, []);
 
     useEffect(() => {
-        async function refreshFunc(){
-            let didRefreshGameWork = await refreshGame();
-            if(didRefreshGameWork){
-                setWaitingForJoin(false);
-                setStatus(cookie.get('state'));
-                setBoard(stringBoardToArray(cookie.get('game')));
+        async function refreshFunc() {
+            try {
+                let didRefreshGameWork = await refreshGame();
+                if (didRefreshGameWork) {
+                    setWaitingForJoin(false);
+                    let gameState = cookie.get('state');
+                    let gameBoard = cookie.get('game');
+                    if (gameState && gameBoard) {
+                        setStatus(gameState);
+                        setBoard(stringBoardToArray(gameBoard));
+                    }
+                }
+            } catch (error) {
+                console.error("Error during refresh:", error);
             }
         }
 

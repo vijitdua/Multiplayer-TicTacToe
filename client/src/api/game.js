@@ -104,3 +104,14 @@ export async function makeMove(row, col, roomID) {
     }
     return "unknown error";
 }
+
+export function updateOwnScores(){
+    try{
+        const data = getPlayerData(cookie.get("username"));
+        cookie.set("losses", data.totalLosses);
+        cookie.set("wins", data.totalWins);
+        cookie.set("ties", data.totalTies);
+    } catch(error){
+        console.log("Error occurred updating own scores: ", error);
+    }
+}

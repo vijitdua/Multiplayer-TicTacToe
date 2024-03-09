@@ -1,5 +1,6 @@
 import Axios from "axios";
 import Cookies from "universal-cookie";
+import {updateOwnScores} from "./game";
 
 const cookie = new Cookies();
 
@@ -41,6 +42,7 @@ export async function createRoom(roomData) {
             cookie.set("yourChar", res.data.char);
             cookie.remove("oppUserName");
             //TODO: Check if more things are needed
+            updateOwnScores();
             return true;
         }
 
@@ -92,6 +94,7 @@ export async function joinRoom(roomID) {
             cookie.set("game", boardArrayToString(res.data.board));
             cookie.set("yourChar", res.data.char);
             //TODO: Check if more things are needed
+            updateOwnScores();
             return true;
         }
 
@@ -139,4 +142,22 @@ export async function checkIfValidRoom(){
 
 export function getRoomID(){
     return cookie.get("roomID");
+}
+
+export async function exitRoom() {
+    const token = cookie.get('token');
+    const roomID = getRoomID();
+    try {
+        const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/exit`, {
+            token: token,
+            roomID: roomID
+        });
+        if(res.data.res === `success`){
+            return true;
+        }
+    } catch(error){
+        console.log("error occurred while exiting room ", error);
+        return `${error}`;
+    }
+    return "unknown error";
 }
