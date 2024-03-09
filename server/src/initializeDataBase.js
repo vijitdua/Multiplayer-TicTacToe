@@ -60,6 +60,7 @@ async function createUserDataTableIfNotExists(dbConnector){
  * @returns void
  */
 async function createGameDataTableIfNotExists(dbConnector){
+    await dbConnector.query(`DROP TABLE ${process.env.MYSQL_GAME_TABLE};`);
     await dbConnector.query(`CREATE TABLE IF NOT EXISTS ${process.env.MYSQL_GAME_TABLE}(
                     roomID varchar(255) NOT NULL, 
                     hostUserName varchar(255) NOT NULL,

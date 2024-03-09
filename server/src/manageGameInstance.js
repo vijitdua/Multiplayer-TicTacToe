@@ -1,5 +1,6 @@
 import {v4 as uuidv4} from "uuid";
 import dotenv from "dotenv";
+import {blankBoard, boardArrayToString} from "./game.js";
 import {authenticateToken} from "./auth.js";
 
 dotenv.config();
@@ -134,10 +135,15 @@ export async function joinRoom(req, res, dbConnector) {
         // Find whose turn the game begins with
         let newState = (doesHostPlayFirst) ? "p1-turn" : "p2-turn";
 
+        let ticTacToeBoard = blankBoard();
+
+        // Convert the 2D array to a string, using a delimiter
+        let boardString = boardArrayToString(ticTacToeBoard);
+
         // Insert data into the database
         await dbConnector.execute(`UPDATE ${process.env.MYSQL_GAME_TABLE}
-                                    SET player2UserName = ?, state = ?
-                                    WHERE roomID = ?`, [username, newState, gameRoomID]);
+                                    SET player2UserName = ?, state = ?, game = ?
+                                    WHERE roomID = ?`, [username, newState, boardString, gameRoomID]);
 
         // Get data about the host
         let hostUsername = await dbConnector.execute(`SELECT hostUserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
