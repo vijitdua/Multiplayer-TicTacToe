@@ -17,6 +17,7 @@ export function stringBoardToArray(boardString){
     );
 }
 
+// Create a room
 export async function createRoom(roomData) {
     console.log("Attempting to create a room");
     const token = cookie.get("token");
@@ -48,6 +49,8 @@ export async function createRoom(roomData) {
 
 }
 
+
+// Join a room
 export async function joinRoom(roomID) {
     console.log(`Attempting to join a game`);
     const token = cookie.get("token");
@@ -76,12 +79,12 @@ export async function joinRoom(roomID) {
         if (res.data.res === `success`) {
             cookie.set("roomType", "joined");
             cookie.set("roomID", res.data.roomID);
-            cookie.set("hostUserName", res.data.hostUserName);
-            cookie.set("hostFirstName", res.data.hostFirstName);
-            cookie.set("hostLastName", res.data.hostLastName);
-            cookie.set("hostWins", res.data.hostWins);
-            cookie.set("hostLosses", res.data.hostLosses);
-            cookie.set("hostTies", res.data.hostTies);
+            cookie.set("oppUserName", res.data.hostUserName);
+            cookie.set("oppFirstName", res.data.hostFirstName);
+            cookie.set("oppLastName", res.data.hostLastName);
+            cookie.set("oppWins", res.data.hostWins);
+            cookie.set("oppLosses", res.data.hostLosses);
+            cookie.set("oppTies", res.data.hostTies);
             cookie.set("game", boardArrayToString(res.data.board));
             //TODO: Check if more things are needed
             return true;
@@ -93,4 +96,40 @@ export async function joinRoom(roomID) {
     }
     return "unknown error";
 
+}
+
+// Clear game cookies
+export function clearGameCookies(){
+    cookie.remove("roomType");
+    cookie.remove("roomID");
+    cookie.remove("oppUserName");
+    cookie.remove("oppFirstName");
+    cookie.remove("oppLastName");
+    cookie.remove("oppWins");
+    cookie.remove("oppLosses");
+    cookie.remove("oppTies");
+    cookie.remove("game");
+}
+
+// Check if the room is valid
+export async function checkIfValidRoom(){
+    const roomID = cookie.get("roomID");
+    const roomType = cookie.get("roomType");
+    const username = cookie.get("username");
+    if(!roomID || !roomType || !username){
+        return false;
+    }
+    try {
+        const res = await Axios.get(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/get-state/${roomID}`);
+        return (roomType === 'hosted' && res.data.hUsername === username) || (roomType === `joined` && res.data.gUsername === username);
+
+    }
+    catch(error){
+        console.log("error occurred while checking if room was valid ", error);
+        return false;
+    }
+}
+
+export function getRoomID(){
+    return cookie.get("roomID");
 }

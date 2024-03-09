@@ -2,6 +2,7 @@ import {v4 as uuidv4} from "uuid";
 import dotenv from "dotenv";
 import {blankBoard, boardArrayToString, stringBoardToArray} from "./game.js";
 import {authenticateToken} from "./auth.js";
+import {getPlayerData} from "./misc.js";
 
 dotenv.config();
 //TODO: fix all SQL injections
@@ -148,22 +149,18 @@ export async function joinRoom(req, res, dbConnector) {
         // Get data about the host
         let hostUsername = await dbConnector.execute(`SELECT hostUserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
         hostUsername = hostUsername[0][0].hostUserName;
-        console.log(hostUsername);
-        let hostWins = await dbConnector.execute(`SELECT totalWins FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?`, [hostUsername]);
-        hostWins = hostWins[0][0].totalWins;
-        let hostLosses = await dbConnector.execute(`SELECT totalLosses FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?`, [hostUsername]);
-        hostLosses = hostLosses[0][0].totalLosses;
-        let hostTies = await dbConnector.execute(`SELECT totalTies FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?`, [hostUsername]);
-        hostTies = hostTies[0][0].totalTies;
-        let hostFName = await dbConnector.execute(`SELECT firstName FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?`, [hostUsername]);
-        hostFName = hostFName[0][0].firstName;
-        let hostLName = await dbConnector.execute(`SELECT lastName FROM ${process.env.MYSQL_USER_TABLE} WHERE username = ?`, [hostUsername]);
-        hostLName = hostLName[0][0].lastName;
-
 
         if (hostUsername === username) {
             throw new Error("same room"); //Joining own room
         }
+
+        let hostData = await getPlayerData(hostUsername, dbConnector);
+
+        let hostWins = hostData.totalWins;
+        let hostLosses = hostData.totalLosses;
+        let hostTies = hostData.totalTies;
+        let hostFName = hostData.firstName;
+        let hostLName = hostData.lastName;
 
         // Console logs
         console.log("A player has joined someone's game room!", {
@@ -194,7 +191,7 @@ export async function joinRoom(req, res, dbConnector) {
 }
 
 /**
- * TODO: Write the fucking comments
+ * TODO: Write the comments
  * @param req
  * @param res
  * @param dbConnector
@@ -202,8 +199,8 @@ export async function joinRoom(req, res, dbConnector) {
  */
 export async function getGameState(req, res, dbConnector){
     const attemptedRoomID = req.params.gameID;
-
     try {
+
         // Check if game room ID is real
         let gameRoomID = await dbConnector.execute(`SELECT roomID from ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [attemptedRoomID]);
         if (!(gameRoomID.length > 0 && gameRoomID[0].length > 0 && attemptedRoomID === gameRoomID[0][0].roomID)) {
@@ -211,21 +208,38 @@ export async function getGameState(req, res, dbConnector){
         }
         gameRoomID = gameRoomID[0][0].roomID;
 
+        // Get host username
+        let hUsername = await dbConnector.execute(`SELECT hostUserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [gameRoomID]);
+        hUsername = hUsername[0][0].hostUserName;
+
+        // Get guest username
+        let gUsername = await dbConnector.execute(`SELECT player2UserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [gameRoomID]);
+        gUsername = gUsername[0][0].player2UserName;
+
         // Get game state
         let gameState = await dbConnector.execute(`SELECT state FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [gameRoomID]);
         gameState = gameState[0][0].state;
 
         // Get current game board
         let game = await dbConnector.execute(`SELECT game FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [gameRoomID]);
-        game = game[0][0].game;
-        game = stringBoardToArray(game);
+        if(gameState !== `waiting-join`){
+            game = game[0][0].game;
+            game = stringBoardToArray(game);
+        }
+        else{
+            game = blankBoard();
+        }
 
         // Respond back with the state of the game
-        res.json({res: `success`, state: gameState, game: game});
+        res.json({res: `success`, state: gameState, board: game, hUsername: hUsername, gUsername: gUsername});
     }
     catch(error){
         console.error(`A user tried to get a game's status and caused an error: ${error}`);
         res.json({res: `${error}`});
     }
+
+}
+
+export async function play(req,res,dbConnector){
 
 }

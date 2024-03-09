@@ -1,5 +1,6 @@
 import Axios from "axios";
 import Cookies from "universal-cookie";
+import {clearGameCookies} from "./manageGameRoom";
 
 const cookie = new Cookies();
 
@@ -84,4 +85,13 @@ export async function authenticateToken() {
         console.log("An error occurred:", error);
         return false;
     }
+}
+
+// Logout a user
+export function logout(){
+    cookie.remove("token");
+    cookie.remove("username");
+    cookie.remove("firstName");
+    cookie.remove("lastName");
+    clearGameCookies();
 }
