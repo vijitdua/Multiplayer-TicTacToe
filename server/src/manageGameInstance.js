@@ -297,6 +297,7 @@ export async function play(req, res, dbConnector) {
                                    WHERE username = ?`, [guestUsername]);
                     }
                     let p1Char = await dbConnector.execute(`SELECT p1Char FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
+                    p1Char = p1Char[0][0].p1Char;
                     if (winStatus === `X` || winStatus === `O`) {
                         winStatus = (winStatus === p1Char) ? `win-p1` : `win-p2`;
                         if(winStatus === `win-p1`){
