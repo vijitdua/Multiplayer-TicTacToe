@@ -1,6 +1,6 @@
 import {v4 as uuidv4} from "uuid";
 import dotenv from "dotenv";
-import {blankBoard, boardArrayToString, stringBoardToArray} from "./game.js";
+import {blankBoard, boardArrayToString, gameWinStatus, makeMove, stringBoardToArray} from "./game.js";
 import {authenticateToken} from "./auth.js";
 import {getPlayerData} from "./misc.js";
 
@@ -210,24 +210,23 @@ export async function getGameState(req, res, dbConnector) {
 
 }
 
-export async function play(req, res, dbConnector, attemptedRoomID) {
+export async function play(req, res, dbConnector) {
     try {
         const token = req.body.token;
         const row = req.body.row;
         const col = req.body.col;
-
+        const attemptedRoomID = req.body.roomID;
         // Check if token received
         if (!token) {
             throw new Error("token not received");
         }
 
         // Find username from token and check if token is correct
-        let username = await dbConnector.execute(`SELECT username FROM ${process.env.MYSQL_USER_TABLE} WHERE token = ?;`, [userToken]);
+        let username = await dbConnector.execute(`SELECT username FROM ${process.env.MYSQL_USER_TABLE} WHERE token = ?;`, [token]);
         if (!(username.length > 0)) {
             throw new Error("invalid token");
         }
         username = username[0][0].username;
-
         // Check if game room exists
         let gameRoomID = await dbConnector.execute(`SELECT roomID from ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [attemptedRoomID]);
         if (attemptedRoomID !== gameRoomID[0][0].roomID) {
@@ -236,7 +235,7 @@ export async function play(req, res, dbConnector, attemptedRoomID) {
         gameRoomID = gameRoomID[0][0].roomID;
 
         // Check if data is complete
-        if (!row || !col) {
+        if (row === undefined || col === undefined || attemptedRoomID === undefined) {
             throw new Error("data incomplete");
         }
 
@@ -251,29 +250,27 @@ export async function play(req, res, dbConnector, attemptedRoomID) {
 
         // Find if player is host or guest
         let hostOrGuest;
-        let temp = await dbConnector.execute(`SELECT hostUserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?` [gameRoomID]);
+        let temp = await dbConnector.execute(`SELECT hostUserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
         if (temp[0][0].hostUserName === username) {
             hostOrGuest = 'host';
         }
-        temp = await dbConnector.execute(`SELECT player2UserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?` [gameRoomID]);
+        temp = await dbConnector.execute(`SELECT player2UserName FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
         if (temp[0][0].player2UserName === username) {
             hostOrGuest = 'guest';
         }
 
         // Check if it is the correct turn
         if ((hostOrGuest === `host` && gameState === `p1-turn`) || (hostOrGuest === `guest` && gameState === `p2-turn`)){
-
             let char;
 
             // find player char
             if (hostOrGuest === `host`) {
-                char = await dbConnector.execute(`SELECT p1Char FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?` [gameRoomID]);
+                char = await dbConnector.execute(`SELECT p1Char FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
                 char = char[0][0].p1Char;
             } else if (hostOrGuest === `guest`) {
-                char = await dbConnector.execute(`SELECT p2Char FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?` [gameRoomID]);
+                char = await dbConnector.execute(`SELECT p2Char FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?`, [gameRoomID]);
                 char = char[0][0].p2Char;
             }
-
             // Get current game board
             let game = await dbConnector.execute(`SELECT game FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [gameRoomID]);
             game = game[0][0].game;
@@ -281,15 +278,19 @@ export async function play(req, res, dbConnector, attemptedRoomID) {
 
             // Check if the board has space available to move on
             if (game[row][col] === null) {
-                game = makeMove(char, row, col);
-                let baordString = boardArrayToString(game);
+                game = makeMove(char, row, col, game);
+                let boardString = boardArrayToString(game);
                 await dbConnector.execute(`UPDATE ${process.env.MYSQL_GAME_TABLE}
-                                    game = ?
+                                    SET game = ?
                                     WHERE roomID = ?`, [boardString, gameRoomID]);
                 if (gameWinStatus(game) !== null) {
                     await dbConnector.execute(`UPDATE ${process.env.MYSQL_GAME_TABLE}
-                                    status = ?
+                                    SET state = ?
                                     WHERE roomID = ?`, [gameWinStatus(game), gameRoomID]);
+                } else{
+                    await dbConnector.execute(`UPDATE ${process.env.MYSQL_GAME_TABLE}
+                                    SET state = ?
+                                    WHERE roomID = ?`, [(gameState === `p1-turn`) ? 'p2-turn' : 'p1-turn' , gameRoomID]);
                 }
             } else {
                 throw new Error(`occupied`);

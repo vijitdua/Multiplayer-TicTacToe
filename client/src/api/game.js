@@ -75,9 +75,8 @@ async function getPlayerData(username) {
 export async function makeMove(row, col, roomID) {
     console.log(`Attempting to make a move at row ${row}, col ${col}, in room id: ${roomID}`)
     const token = cookie.get("token");
-    // TODO: Write error messages
     try{
-        const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/play`, {token: token, row: row, col: col});
+        const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/play`, {token: token, row: row, col: col, roomID: roomID});
         if(res.data.res === `success`){
             return true;
         }
@@ -93,10 +92,10 @@ export async function makeMove(row, col, roomID) {
         if(res.data.res === `Error: token not recieved`){
             return "There seems to be an error with your login data, please log out and log in again";
         }
-        if(res.data.res=== `occupied`){
+        if(res.data.res=== `Error: occupied`){
             return "This block is occupied";
         }
-        if(res.data.res === `not your turn`){
+        if(res.data.res === `Error: not your turn`){
             return "It is not your turn";
         }
     }catch(error){

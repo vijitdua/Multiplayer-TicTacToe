@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import mysql from "mysql2/promise"; //TODO: fix all SQL injections
 import {initializeDataBase} from "./initializeDataBase.js";
 import {signUp, login, authenticateToken} from "./auth.js";
-import {createRoom, getGameState, joinRoom} from "./manageGameInstance.js";
+import {createRoom, getGameState, joinRoom, play} from "./manageGameInstance.js";
 import {getDataForClient} from "./misc.js";
 import {makeMove} from "./game.js";
 
@@ -34,7 +34,7 @@ app.post("/authenticate", async (req, res) => authenticateToken(req, res, dbConn
 app.post("/join", async (req, res) => joinRoom(req, res, dbConnector));
 app.get('/get-state/:gameID', async (req, res) => getGameState(req, res, dbConnector));
 app.get('/get-data/:player', async (req, res) => getDataForClient(req, res, dbConnector));
-app.post(`/play`, async (req, res) => makeMove(req, res, dbConnector));
+app.post(`/play`, async (req, res) => play(req, res, dbConnector));
 
 // Activate the server
 app.listen(process.env.SERVER_PORT, () => {
