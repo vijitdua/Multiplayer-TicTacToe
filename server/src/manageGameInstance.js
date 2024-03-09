@@ -1,6 +1,6 @@
 import {v4 as uuidv4} from "uuid";
 import dotenv from "dotenv";
-import {blankBoard, boardArrayToString} from "./game.js";
+import {blankBoard, boardArrayToString, stringBoardToArray} from "./game.js";
 import {authenticateToken} from "./auth.js";
 
 dotenv.config();
@@ -182,7 +182,8 @@ export async function joinRoom(req, res, dbConnector) {
             hostLastName: hostLName,
             hostWins: hostWins,
             hostLosses: hostLosses,
-            hostTies: hostTies
+            hostTies: hostTies,
+            board: ticTacToeBoard
         });
     }
         // Error catching, and send error data to client
@@ -190,6 +191,41 @@ export async function joinRoom(req, res, dbConnector) {
         console.error(`A user tried to join a game and caused an error: ${error}`);
         res.json({...req.body, res: `${error}`});
     }
+}
 
+/**
+ * TODO: Write the fucking comments
+ * @param req
+ * @param res
+ * @param dbConnector
+ * @returns {Promise<void>}
+ */
+export async function getGameState(req, res, dbConnector){
+    const attemptedRoomID = req.params.gameID;
+
+    try {
+        // Check if game room ID is real
+        let gameRoomID = await dbConnector.execute(`SELECT roomID from ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [attemptedRoomID]);
+        if (!(gameRoomID.length > 0 && gameRoomID[0].length > 0 && attemptedRoomID === gameRoomID[0][0].roomID)) {
+            throw new Error("room not found");
+        }
+        gameRoomID = gameRoomID[0][0].roomID;
+
+        // Get game state
+        let gameState = await dbConnector.execute(`SELECT state FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [gameRoomID]);
+        gameState = gameState[0][0].state;
+
+        // Get current game board
+        let game = await dbConnector.execute(`SELECT game FROM ${process.env.MYSQL_GAME_TABLE} WHERE roomID = ?;`, [gameRoomID]);
+        game = game[0][0].game;
+        game = stringBoardToArray(game);
+
+        // Respond back with the state of the game
+        res.json({res: `success`, state: gameState, game: game});
+    }
+    catch(error){
+        console.error(`A user tried to get a game's status and caused an error: ${error}`);
+        res.json({res: `${error}`});
+    }
 
 }

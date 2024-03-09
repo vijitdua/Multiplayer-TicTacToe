@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {createRoom} from '../api/manageRoom';
+import {createRoom} from '../api/manageGameRoom';
 import ErrorMessage from "./ErrorMessage";
 import {
     Avatar,

@@ -3,6 +3,20 @@ import Cookies from "universal-cookie";
 
 const cookie = new Cookies();
 
+// Convert 2D board array to string
+export function boardArrayToString(board2DArray){
+    return board2DArray
+        .map(row => row.map(item => item === null ? "null" : item).join(','))
+        .join(';');
+}
+
+// Convert string of board to 2d array
+export function stringBoardToArray(boardString){
+    return boardString.split(';').map(row =>
+        row.split(',').map(item => item === "null" ? null : item)
+    );
+}
+
 export async function createRoom(roomData) {
     console.log("Attempting to create a room");
     const token = cookie.get("token");
@@ -68,6 +82,7 @@ export async function joinRoom(roomID) {
             cookie.set("hostWins", res.data.hostWins);
             cookie.set("hostLosses", res.data.hostLosses);
             cookie.set("hostTies", res.data.hostTies);
+            cookie.set("game", boardArrayToString(res.data.board));
             //TODO: Check if more things are needed
             return true;
         }

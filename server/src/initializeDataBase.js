@@ -69,7 +69,7 @@ async function createGameDataTableIfNotExists(dbConnector){
                     hostPlaysFirst bool,
                     p1Char char(1),
                     p2Char char(2),
-                    game varchar(9),
+                    game varchar(255),
                     UNIQUE(roomID),
                     PRIMARY KEY (roomID)
                     );`);
