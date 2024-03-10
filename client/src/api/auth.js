@@ -96,5 +96,8 @@ export function logout(){
     cookie.remove("username");
     cookie.remove("firstName");
     cookie.remove("lastName");
+    cookie.remove("losses");
+    cookie.remove("wins");
+    cookie.remove("ties");
     clearGameCookies();
 }
