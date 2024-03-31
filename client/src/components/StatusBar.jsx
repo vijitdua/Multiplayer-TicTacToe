@@ -7,7 +7,7 @@ import Cookies from "universal-cookie";
 const StatusBar = ({gameStatus}) => {
     const cookie = new Cookies();
 
-    let statusMessage = `error getting game status`;
+    let statusMessage = `Loading game status`;
     const roomID = getRoomID();
 
     if (gameStatus === 'waiting-join') {

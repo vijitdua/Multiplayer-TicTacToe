@@ -1,14 +1,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import {v4 as uuidv4} from "uuid";
-import bcrypt from "bcrypt";
-import mysql from "mysql2/promise"; //TODO: fix all SQL injections
 import {initializeDataBase} from "./initializeDataBase.js";
 import {signUp, login, authenticateToken} from "./auth.js";
 import {createRoom, exitGame, getGameState, joinRoom, play} from "./manageGameInstance.js";
 import {getDataForClient} from "./misc.js";
-import {makeMove} from "./game.js";
 
 dotenv.config();
 
