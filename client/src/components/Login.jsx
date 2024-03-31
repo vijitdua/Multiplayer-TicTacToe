@@ -26,14 +26,13 @@ function Login() {
 
     async function loginButton() {
         let success = await login(user);
-        if (success !== true) {
-            setErr(success);
-            setErrID(prevId => prevId + 1); // Increment errorId to ensure a new key for each error
+
+        if (success === true) {
+            window.location.href = '/';
             return;
         }
-        if (success === true){
-            window.location.href = '/';
-        }
+        setErr(success);
+        setErrID(prevId => prevId + 1); // Increment errorId to ensure a new key for each error
     }
 
 

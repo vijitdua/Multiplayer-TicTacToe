@@ -13,7 +13,7 @@ const cookie = new Cookies();
 export async function login(userData) {
     console.log(`Attempting to login`);
     try {
-        let res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/login`, userData);
+        const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/login`, userData);
         console.log("Server response: ", res.data.res);
         if (res.data.res === `Error: data incomplete`) {
             return ("Please fill all fields before you signup");
@@ -21,28 +21,29 @@ export async function login(userData) {
         if (res.data.res === `Error: incorrect data`) {
             return ("Please check if your username and/or password are correct");
         }
+        if(res.data.res === `success`){
+            // Set relevant cookie expiry date
+            const cookieExpiryDate = new Date();
+            cookieExpiryDate.setDate(cookieExpiryDate.getDate() + 30);
+            const cookieOptions = (userData.remember) ? {expires: cookieExpiryDate} : {};
 
-        // Set relevant cookie expiry date
-        const cookieExpiryDate = new Date();
-        cookieExpiryDate.setDate(cookieExpiryDate.getDate() + 30);
-        const cookieOptions = (userData.remember) ? {expires: cookieExpiryDate} : {};
-
-        // Create cookies
-        cookie.set("username", res.data.username, cookieOptions);
-        cookie.set("firstName", res.data.firstName, cookieOptions);
-        cookie.set("lastName", res.data.lastName, cookieOptions);
-        cookie.set("token", res.data.token, cookieOptions);
-        cookie.set(`wins`, res.data.wins, cookieOptions);
-        cookie.set(`losses`, res.data.losses, cookieOptions);
-        cookie.set(`ties`, res.data.ties, cookieOptions);
-        console.log("login successful");
-        return true;  //TODO: Do this only if server response is true not by default
+            // Create cookies
+            cookie.set("username", res.data.username, cookieOptions);
+            cookie.set("firstName", res.data.firstName, cookieOptions);
+            cookie.set("lastName", res.data.lastName, cookieOptions);
+            cookie.set("token", res.data.token, cookieOptions);
+            cookie.set(`wins`, res.data.wins, cookieOptions);
+            cookie.set(`losses`, res.data.losses, cookieOptions);
+            cookie.set(`ties`, res.data.ties, cookieOptions);
+            console.log("login successful");
+            return true;
+        }
+        return "Unknown error";
 
     } catch (error) {
         console.log("An error occurred:", error);
-        return error;
+        return ("An unknown error occurred");
     }
-    return "Unknown error";
 }
 
 /**
@@ -62,12 +63,14 @@ export async function signUp(userData) {
         if (res.data.res === `Error: username taken`) {
             return ("Sorry that username already exists");
         }
-        return true; //TODO: Do this only if server response is true not by default
+        if(res.data.res === `success`) {
+            return true;
+        }
+        return "Unknown error";
     } catch (error) {
         console.log("An error occurred:", error);
         return ("An unknown error occurred");
     }
-    return "Unknown error";
 }
 
 

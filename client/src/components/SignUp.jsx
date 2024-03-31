@@ -28,10 +28,10 @@ function SignUp() {
             setUserData("remember", true);
             await login(user);
             window.location.href = '/';
-        } else {
-            setErr(signUpSuccess);
-            setErrID(prevId => prevId + 1); // Increment errorId to ensure a new key for each error
+            return;
         }
+        setErr(signUpSuccess);
+        setErrID(prevId => prevId + 1); // Increment errorId to ensure a new key for each error
     }
 
     return (
