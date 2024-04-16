@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import {initializeDataBase} from "./initializeDataBase.js";
+import {initializeDataBase, initializeDataBaseWithRetry} from "./initializeDataBase.js";
 import {signUp, login, authenticateToken} from "./auth.js";
 import {createRoom, exitGame, getGameState, joinRoom, play} from "./manageGameInstance.js";
 import {getDataForClient} from "./misc.js";
@@ -15,11 +15,8 @@ app.use(express.json());
 
 // Initialize database, exit if failed
 let dbConnector;
-initializeDataBase().then((conn) => {
+initializeDataBaseWithRetry(5).then(conn => {
     dbConnector = conn;
-}).catch((error) => {
-    console.error('Database initialization failed:', error);
-    process.exit(1);
 });
 
 // Posts

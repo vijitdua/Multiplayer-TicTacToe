@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    expose:
+      - "3000"
+    depends_on:
+      - database
+    environment:
+      - SERVER_PORT=3000
+      - MYSQL_HOST=database
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=ThisIsAStrongPassword
+      - MYSQL_DB=TicTacToeDB
+      - MYSQL_USER_TABLE=Users
+      - MYSQL_GAME_TABLE=Rooms
+
+  database:
+    image: mysql
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    environment:
+      - MYSQL_DATABASE=TicTacToeDB
+      - MYSQL_ROOT_PASSWORD=ThisIsAStrongPassword
+    volumes:
+      - tic-data:/var/lib/mysql
+
+volumes:
+  tic-data:

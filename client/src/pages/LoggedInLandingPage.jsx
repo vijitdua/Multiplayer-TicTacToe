@@ -31,6 +31,7 @@ function LoggedInLandingPage() {
         return status;
     }
 
+    // Checks if you are in a game on opening the landing page
     useEffect(() => {
         async function func() {
             let inGame = await checkIfInGame();
@@ -46,6 +47,7 @@ function LoggedInLandingPage() {
         func();
     }, []);
 
+    // Refreshes the game once you are in the game
     useEffect(() => {
         async function refreshFunc() {
             try {

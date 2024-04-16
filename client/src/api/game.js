@@ -8,6 +8,9 @@ const cookie = new Cookies();
 export async function refreshGame() {
     try {
         const roomID = cookie.get("roomID");
+        if(!(roomID)){
+            return false;
+        }
         const res = await Axios.get(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/get-state/${roomID}`);
         let statusUpdate = false;
         if ((res.data.res) === "success") {

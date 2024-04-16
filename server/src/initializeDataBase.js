@@ -30,6 +30,29 @@ export async function initializeDataBase() {
     return dbConnector;
 }
 
+// Recursive function to initialize database with retries
+export async function initializeDataBaseWithRetry(attempts) {
+    try {
+        const conn = await initializeDataBase();
+        console.log('Database connected successfully!');
+        return conn; // Return the connection if successful
+    } catch (error) {
+        console.error('Database initialization attempt failed:', error);
+        if (attempts > 0) {
+            console.log(`Retrying... attempts left: ${attempts - 1}`);
+            await delay(5000); // Wait for 5 seconds before retrying
+            return initializeDataBaseWithRetry(attempts - 1);
+        } else {
+            console.error('All retries failed.');
+            process.exit(1); // Exit process after all retries are exhausted
+        }
+    }
+}
+
+// Helper function to delay execution
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 /**
  * Creates a user data table if it doesn't exist already
