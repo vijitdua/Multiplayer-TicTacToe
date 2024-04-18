@@ -10,7 +10,12 @@ dotenv.config();
 
 // Express config
 const app = express();
-app.use(cors());
+// const corsOptions = {
+//     origin: process.env.CORS_ORIGIN,
+//     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+// };
+// app.use(cors(corsOptions));
+app.use(cors()); //Work with any origin for now
 app.use(express.json());
 
 // Initialize database, exit if failed
@@ -31,6 +36,6 @@ app.post(`/play`, async (req, res) => play(req, res, dbConnector));
 app.post(`/exit`, async (req, res) => exitGame(req, res, dbConnector));
 
 // Activate the server
-app.listen(process.env.SERVER_PORT, () => {
-    console.log(`Server is running on port ${process.env.SERVER_PORT}`);
+app.listen(process.env.PORT, () => {
+    console.log(`Server is running on port ${process.env.PORT}`);
 });

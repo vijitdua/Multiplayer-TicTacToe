@@ -13,7 +13,7 @@ const cookie = new Cookies();
 export async function login(userData) {
     console.log(`Attempting to login`);
     try {
-        const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/login`, userData);
+        const res = await Axios.post(`${process.env.REACT_APP_SERVER}/login`, userData);
         console.log("Server response: ", res.data.res);
         if (res.data.res === `Error: data incomplete`) {
             return ("Please fill all fields before you signup");
@@ -55,7 +55,7 @@ export async function login(userData) {
 export async function signUp(userData) {
     console.log(`Attempting to signup`);
     try {
-        const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/signup`, userData);
+        const res = await Axios.post(`${process.env.REACT_APP_SERVER}/signup`, userData);
         console.log("Server response:", res.data.res);
         if (res.data.res === `Error: data incomplete`) {
             return ("Please fill all fields before you signup");
@@ -84,7 +84,7 @@ export async function authenticateToken() {
     const token = cookie.get('token');
     if (token === undefined) return false;
     try {
-        const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/authenticate`, {token: token});
+        const res = await Axios.post(`${process.env.REACT_APP_SERVER}/authenticate`, {token: token});
         console.log("Server response:", res.data.res);
         return res.data.res === `token valid`;
     } catch (error) {

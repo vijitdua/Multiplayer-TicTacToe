@@ -11,7 +11,7 @@ export async function refreshGame() {
         if(!(roomID)){
             return false;
         }
-        const res = await Axios.get(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/get-state/${roomID}`);
+        const res = await Axios.get(`${process.env.REACT_APP_SERVER}/get-state/${roomID}`);
         let statusUpdate = false;
         if ((res.data.res) === "success") {
             let oldState = cookie.get("state");
@@ -52,7 +52,7 @@ export async function refreshGame() {
 async function getPlayerData(username) {
     console.log(`attempting to get player data for player: ${username}`);
     try {
-        const res = await Axios.get(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/get-data/${username}`);
+        const res = await Axios.get(`${process.env.REACT_APP_SERVER}/get-data/${username}`);
         console.log(`Server response: `, res.data.res);
         if (res.data.res === `success`) {
             return {
@@ -79,7 +79,7 @@ export async function makeMove(row, col, roomID) {
     console.log(`Attempting to make a move at row ${row}, col ${col}, in room id: ${roomID}`)
     const token = cookie.get("token");
     try{
-        const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/play`, {token: token, row: row, col: col, roomID: roomID});
+        const res = await Axios.post(`${process.env.REACT_APP_SERVER}/play`, {token: token, row: row, col: col, roomID: roomID});
         if(res.data.res === `success`){
             return true;
         }

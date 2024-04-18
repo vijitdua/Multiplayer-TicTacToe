@@ -10,16 +10,19 @@ services:
     depends_on:
       - database
     environment:
-      - SERVER_PORT=3000
+      - PORT=3000
+      - CORS_ORIGIN='http://localhost:'
       - MYSQL_HOST=database
       - MYSQL_USERNAME=root
       - MYSQL_PASSWORD=ThisIsAStrongPassword
       - MYSQL_DB=TicTacToeDB
       - MYSQL_USER_TABLE=Users
       - MYSQL_GAME_TABLE=Rooms
+    restart: on-failure
 
   database:
     image: mysql
+    restart: always
     ports:
       - "3306:3306"
     expose:

@@ -25,7 +25,7 @@ export async function createRoom(roomData) {
     const token = cookie.get("token");
     roomData = {...roomData, token: token};
     try {
-        let res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/createGame`, roomData);
+        let res = await Axios.post(`${process.env.REACT_APP_SERVER}/createGame`, roomData);
         console.log(`Server response: `, res.data.res);
         if (res.data.res === `Error: data incomplete`) {
             return "Please fill all fields before you create a game";
@@ -62,7 +62,7 @@ export async function joinRoom(roomID) {
     const token = cookie.get("token");
 
     try {
-        let res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/join`, {
+        let res = await Axios.post(`${process.env.REACT_APP_SERVER}/join`, {
             token: token,
             roomID: roomID
         });
@@ -130,7 +130,7 @@ export async function checkIfValidRoom(){
         return false;
     }
     try {
-        const res = await Axios.get(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/get-state/${roomID}`);
+        const res = await Axios.get(`${process.env.REACT_APP_SERVER}/get-state/${roomID}`);
         return (roomType === 'hosted' && res.data.hUsername === username) || (roomType === `joined` && res.data.gUsername === username);
 
     }
@@ -148,7 +148,7 @@ export async function exitRoom() {
     const token = cookie.get('token');
     const roomID = getRoomID();
     try {
-        const res = await Axios.post(`http://localhost:${process.env.REACT_APP_SERVER_PORT}/exit`, {
+        const res = await Axios.post(`${process.env.REACT_APP_SERVER}/exit`, {
             token: token,
             roomID: roomID
         });
