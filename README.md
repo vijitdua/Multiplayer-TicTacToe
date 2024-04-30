@@ -1,4 +1,4 @@
-# Multiplayer, Full Stack, Web TicTacToe
+# Multiplayer, Full Stack, TicTacToe
 
 ---
 
