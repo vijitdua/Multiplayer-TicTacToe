@@ -24,12 +24,12 @@ function MyAppBar() {
                         }
                         clearGameCookies();
                     }}
-                        >
-                        <HomeIcon />
-                        </IconButton>
+                >
+                    <HomeIcon />
+                </IconButton>
 
-                    {/* Title */}
-                        <Typography variant="h6" component="div" sx={{flexGrow: 1, textAlign: 'center'}}>
+                {/* Title */}
+                <Typography variant="h6" component="div" sx={{flexGrow: 1, textAlign: 'center'}}>
                     TicTacToe online
                 </Typography>
 

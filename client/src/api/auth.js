@@ -89,6 +89,7 @@ export async function authenticateToken() {
         return res.data.res === `token valid`;
     } catch (error) {
         console.log("An error occurred:", error);
+        logout();
         return false;
     }
 }

@@ -30,7 +30,6 @@ function JoinRoom() {
                 alignItems: 'center',
                 backgroundColor: '#f9f9f9',
                 borderRadius: '16px',
-
                 '& > *': {
                     margin: '15px', // Apply margin to each child
                 },
