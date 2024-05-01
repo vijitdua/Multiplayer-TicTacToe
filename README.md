@@ -6,7 +6,7 @@
 
 An app that lets you play TicTacToe online with your friends!
 
-[Check it out online yourself!](http://tic.vijitdua.com)
+[Check it out online yourself!](http://tic.vijitdua.xyz)
 
 ---
 
