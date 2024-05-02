@@ -1,4 +1,4 @@
-# Multiplayer, Full Stack, Web TicTacToe
+# Multiplayer, Full Stack, TicTacToe
 
 ---
 
@@ -6,7 +6,7 @@
 
 An app that lets you play TicTacToe online with your friends!
 
-[Check it out online yourself!](http://tic.vijitdua.com)
+[Check it out online yourself!](https://tic.vijitdua.xyz)
 
 ---
 
