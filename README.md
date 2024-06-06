@@ -10,17 +10,17 @@ An app that lets you play TicTacToe online with your friends!
 
 ## Preview
 
-- <img width="515" alt="Screenshot 2024-06-06 at 1 48 55 PM" src="https://github.com/vijitdua/Multiplayer-TicTacToe/assets/82555472/56672ae3-5269-45c2-8879-d956c39cd8fa">
+- <img width="300" alt="Screenshot 2024-06-06 at 1 48 55 PM" src="https://github.com/vijitdua/Multiplayer-TicTacToe/assets/82555472/56672ae3-5269-45c2-8879-d956c39cd8fa">
 
-- <img width="469" alt="image" src="https://github.com/vijitdua/Multiplayer-TicTacToe/assets/82555472/606560dd-1b34-4c62-ba9a-88c6e43fc991">
+- <img width="300" alt="image" src="https://github.com/vijitdua/Multiplayer-TicTacToe/assets/82555472/606560dd-1b34-4c62-ba9a-88c6e43fc991">
 
-- <img width="1515" alt="image" src="https://github.com/vijitdua/Multiplayer-TicTacToe/assets/82555472/0f46b35c-29d6-4722-8201-c33389dbbc0f">
+- <img width="500" alt="image" src="https://github.com/vijitdua/Multiplayer-TicTacToe/assets/82555472/0f46b35c-29d6-4722-8201-c33389dbbc0f">
 
-- <img width="1507" alt="image" src="https://github.com/vijitdua/Multiplayer-TicTacToe/assets/82555472/2ab9f01d-075d-406c-8b2a-b1ae08ea8b8a">
+- <img width="500" alt="image" src="https://github.com/vijitdua/Multiplayer-TicTacToe/assets/82555472/2ab9f01d-075d-406c-8b2a-b1ae08ea8b8a">
 
-- <img width="791" alt="image" src="https://github.com/vijitdua/Multiplayer-TicTacToe/assets/82555472/3067400d-f3f2-4e0d-8328-2b8ad34a6f21">
+- <img width="500" alt="image" src="https://github.com/vijitdua/Multiplayer-TicTacToe/assets/82555472/3067400d-f3f2-4e0d-8328-2b8ad34a6f21">
 
-- <img width="965" alt="image" src="https://github.com/vijitdua/Multiplayer-TicTacToe/assets/82555472/05eaff17-469c-4025-915b-c5f06827fcbd">
+- <img width="500" alt="image" src="https://github.com/vijitdua/Multiplayer-TicTacToe/assets/82555472/05eaff17-469c-4025-915b-c5f06827fcbd">
 
 ---
 
