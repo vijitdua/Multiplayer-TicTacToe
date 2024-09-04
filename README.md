@@ -6,6 +6,8 @@
 
 An app that lets you play TicTacToe online with your friends!
 
+This is also my **first-ever web project**, **backend project**, and **JS project** in general. Before this, I had only worked on CLI-based projects. Pardon the poor file structure and code style, newer projects have better code :).
+
 ---
 
 ## Preview
